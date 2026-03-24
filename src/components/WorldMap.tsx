@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { cities, City } from "@/data/cities";
+import { cities } from "@/data/cities";
 import { useNavigate } from "react-router-dom";
 
 interface WorldMapProps {
@@ -25,7 +25,8 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
       scrollWheelZoom: true,
     });
 
-    const cartoLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}{r}.png", {
+    // Dark tile layer for command center aesthetic
+    const darkLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
       maxZoom: 19,
@@ -37,23 +38,22 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
     });
 
     let switchedToOsm = false;
-    cartoLayer.on("tileerror", () => {
+    darkLayer.on("tileerror", () => {
       if (switchedToOsm) return;
       switchedToOsm = true;
-      map.removeLayer(cartoLayer);
+      map.removeLayer(darkLayer);
       osmLayer.addTo(map);
     });
 
-    cartoLayer.addTo(map);
-
+    darkLayer.addTo(map);
     mapInstanceRef.current = map;
 
     cities.forEach((city) => {
       const marker = L.marker([city.lat, city.lng], {
         icon: L.divIcon({
           className: "city-marker pulse",
-          iconSize: [16, 16],
-          iconAnchor: [8, 8],
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
         }),
       }).addTo(map);
 
@@ -61,22 +61,21 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
         navigate(`/city/${city.id}`);
       });
 
-      // Create popup
       const updatePopup = () => {
         const w = weatherData[city.id];
         const tempHtml = w
-          ? `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
-              <img src="https://openweathermap.org/img/wn/${w.icon}.png" width="30" height="30" />
-              <span style="font-size:18px;font-weight:600;font-family:Space Grotesk,sans-serif;">${w.temp}°F</span>
+          ? `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <img src="https://openweathermap.org/img/wn/${w.icon}.png" width="28" height="28" />
+              <span style="font-size:18px;font-weight:700;font-family:JetBrains Mono,monospace;color:hsl(170,100%,45%);">${w.temp}°F</span>
             </div>`
-          : `<span style="color:#999;font-size:12px;">Loading...</span>`;
+          : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
         marker.bindPopup(
-          `<div style="padding:12px 14px;min-width:140px;">
-            <div style="font-family:Space Grotesk,sans-serif;font-weight:600;font-size:14px;">${city.connection.emoji} ${city.name}</div>
-            <div style="font-size:11px;color:#888;margin-top:2px;">${city.country}</div>
+          `<div style="padding:10px 12px;min-width:150px;">
+            <div style="font-family:Space Grotesk,sans-serif;font-weight:600;font-size:13px;color:hsl(180,20%,90%);">${city.connection.emoji} ${city.name}</div>
+            <div style="font-size:10px;color:hsl(200,15%,50%);margin-top:2px;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.05em;">${city.country}</div>
             ${tempHtml}
-            <div style="font-size:11px;color:hsl(187,70%,38%);margin-top:6px;cursor:pointer;font-weight:500;">Click to explore →</div>
+            <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
           </div>`,
           { closeButton: false, offset: [0, -4] }
         );
@@ -95,16 +94,14 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
     };
   }, [navigate, weatherData]);
 
-  // Update popups when weather data changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
-    // Popups will update on next hover
   }, [weatherData]);
 
   return (
     <div
       ref={mapRef}
-      className="w-full h-[500px] md:h-[600px] rounded-lg border border-border shadow-lg"
+      className="w-full h-[450px] md:h-[550px] rounded-md glow-border"
     />
   );
 }
