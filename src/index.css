@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,89 +6,54 @@
 
 @layer base {
   :root {
-    --background: 200 20% 98%;
-    --foreground: 200 50% 10%;
+    --background: 220 25% 5%;
+    --foreground: 180 20% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 200 50% 10%;
+    --card: 220 30% 8%;
+    --card-foreground: 180 20% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 50% 10%;
+    --popover: 220 30% 8%;
+    --popover-foreground: 180 20% 90%;
 
-    --primary: 187 70% 38%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 170 100% 45%;
+    --primary-foreground: 220 25% 5%;
 
-    --secondary: 200 30% 94%;
-    --secondary-foreground: 200 50% 15%;
+    --secondary: 220 25% 12%;
+    --secondary-foreground: 180 20% 80%;
 
-    --muted: 200 20% 95%;
-    --muted-foreground: 200 15% 45%;
+    --muted: 220 20% 12%;
+    --muted-foreground: 200 15% 50%;
 
-    --accent: 220 65% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 220 25% 5%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 20% 88%;
-    --input: 200 20% 88%;
-    --ring: 187 70% 38%;
+    --border: 180 60% 20%;
+    --input: 220 25% 15%;
+    --ring: 170 100% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --weather-sunny: 45 95% 55%;
-    --weather-cloudy: 210 15% 70%;
+    --weather-cloudy: 210 15% 55%;
     --weather-rainy: 215 60% 50%;
     --weather-warm: 15 85% 55%;
     --weather-cold: 200 70% 65%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+    --glow-primary: 170 100% 45%;
+    --glow-accent: 35 100% 55%;
+    --glow-danger: 0 85% 55%;
 
-  .dark {
-    --background: 200 40% 6%;
-    --foreground: 200 20% 95%;
-
-    --card: 200 35% 10%;
-    --card-foreground: 200 20% 95%;
-
-    --popover: 200 35% 10%;
-    --popover-foreground: 200 20% 95%;
-
-    --primary: 187 70% 45%;
-    --primary-foreground: 200 40% 6%;
-
-    --secondary: 200 30% 15%;
-    --secondary-foreground: 200 20% 90%;
-
-    --muted: 200 25% 14%;
-    --muted-foreground: 200 15% 55%;
-
-    --accent: 220 65% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 200 25% 18%;
-    --input: 200 25% 18%;
-    --ring: 187 70% 45%;
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 30% 6%;
+    --sidebar-foreground: 180 20% 90%;
+    --sidebar-primary: 170 100% 45%;
+    --sidebar-primary-foreground: 220 25% 5%;
+    --sidebar-accent: 220 25% 12%;
+    --sidebar-accent-foreground: 180 20% 90%;
+    --sidebar-border: 180 60% 20%;
+    --sidebar-ring: 170 100% 45%;
   }
 }
 
@@ -107,16 +72,130 @@
   }
 }
 
+/* === GRID BACKGROUND PATTERN === */
+.grid-bg {
+  background-image:
+    linear-gradient(hsl(180 60% 20% / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(180 60% 20% / 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* === SCANLINE EFFECT === */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    hsl(170 100% 45% / 0.015) 2px,
+    hsl(170 100% 45% / 0.015) 4px
+  );
+  z-index: 1;
+}
+
+/* === GLOWING BORDERS === */
+.glow-border {
+  border: 1px solid hsl(var(--border));
+  box-shadow:
+    0 0 8px hsl(var(--primary) / 0.15),
+    inset 0 0 8px hsl(var(--primary) / 0.05);
+}
+
+.glow-border-accent {
+  border: 1px solid hsl(var(--accent) / 0.4);
+  box-shadow:
+    0 0 8px hsl(var(--accent) / 0.15),
+    inset 0 0 8px hsl(var(--accent) / 0.05);
+}
+
+/* === HUD CORNERS === */
+.hud-corners {
+  position: relative;
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: hsl(var(--primary) / 0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hud-corners::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.hud-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* === TELEMETRY PULSE === */
+@keyframes telemetry-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.telemetry-pulse {
+  animation: telemetry-pulse 2s ease-in-out infinite;
+}
+
+/* === RADAR SWEEP === */
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.radar-sweep {
+  animation: radar-sweep 4s linear infinite;
+}
+
+/* === DATA STREAM === */
+@keyframes data-stream {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+/* === NEON TEXT GLOW === */
+.text-glow {
+  text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.3);
+}
+
+.text-glow-accent {
+  text-shadow: 0 0 10px hsl(var(--accent) / 0.5), 0 0 20px hsl(var(--accent) / 0.3);
+}
+
+/* === MONOSPACE DATA === */
+.font-mono-data {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* === MAP STYLES === */
 .leaflet-container {
-  background: hsl(200 20% 95%);
+  background: hsl(220 25% 5%);
   border-radius: var(--radius);
   font-family: 'Inter', sans-serif;
 }
 
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius) !important;
-  box-shadow: 0 10px 40px -10px hsl(200 50% 10% / 0.2) !important;
+  background: hsl(220 30% 8% / 0.95) !important;
+  box-shadow: 0 0 20px hsl(170 100% 45% / 0.2) !important;
   border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  backdrop-filter: blur(12px);
 }
 
 .leaflet-popup-content {
@@ -124,18 +203,23 @@
   font-family: 'Inter', sans-serif !important;
 }
 
+.leaflet-popup-tip {
+  background: hsl(220 30% 8% / 0.95) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
 .city-marker {
   background: hsl(var(--primary));
-  border: 3px solid hsl(var(--primary-foreground));
+  border: 2px solid hsl(var(--primary) / 0.6);
   border-radius: 50%;
-  box-shadow: 0 2px 12px hsl(var(--primary) / 0.4);
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.6), 0 0 24px hsl(var(--primary) / 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 
 .city-marker:hover {
-  transform: scale(1.3);
-  box-shadow: 0 4px 20px hsl(var(--primary) / 0.6);
+  transform: scale(1.4);
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.4);
 }
 
 .city-marker.pulse {
@@ -143,6 +227,48 @@
 }
 
 @keyframes marker-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
-  50% { box-shadow: 0 0 0 12px hsl(var(--primary) / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5), 0 0 12px hsl(var(--primary) / 0.6); }
+  50% { box-shadow: 0 0 0 14px hsl(var(--primary) / 0), 0 0 12px hsl(var(--primary) / 0.6); }
+}
+
+/* === LEAFLET DARK THEME OVERRIDES === */
+.leaflet-control-zoom a {
+  background: hsl(220 30% 10%) !important;
+  color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: hsl(220 30% 15%) !important;
+}
+
+.leaflet-control-attribution {
+  background: hsl(220 25% 5% / 0.8) !important;
+  color: hsl(200 15% 40%) !important;
+  font-size: 9px !important;
+}
+
+.leaflet-control-attribution a {
+  color: hsl(var(--primary) / 0.6) !important;
+}
+
+/* === FADE IN ANIMATION === */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* === STATUS INDICATOR === */
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.status-online {
+  animation: status-blink 2s ease-in-out infinite;
 }
