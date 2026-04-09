@@ -4,10 +4,13 @@ import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
 import { ArrowLeft, Droplets, Wind, Thermometer, User, BookOpen, Lightbulb, MapPin, Activity } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
+import { t } from "@/i18n/translations";
 
 export default function CityDetail() {
   const { cityId } = useParams();
   const navigate = useNavigate();
+  const { formatTemp, convertWindSpeed, language } = useSettings();
   const city = cities.find((c) => c.id === cityId);
 
   if (!city) {
@@ -15,9 +18,9 @@ export default function CityDetail() {
       <div className="min-h-screen bg-background grid-bg">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-2">Station Not Found</h2>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-2">{t(language, "stationNotFound")}</h2>
           <button onClick={() => navigate("/")} className="text-primary hover:underline font-mono text-sm">
-            ← Return to Command Center
+            {t(language, "returnToCommandCenter")}
           </button>
         </div>
       </div>
@@ -26,6 +29,8 @@ export default function CityDetail() {
 
   const { data: weather, isLoading: weatherLoading } = useCityWeather(city.lat, city.lng);
   const { data: forecast, isLoading: forecastLoading } = useCityForecast(city.lat, city.lng);
+
+  const dayLocale = language === "es" ? "es-CO" : "en-US";
 
   return (
     <div className="min-h-screen bg-background grid-bg">
@@ -38,7 +43,7 @@ export default function CityDetail() {
           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 font-mono text-xs uppercase tracking-wider"
         >
           <ArrowLeft className="w-3 h-3" />
-          <span>Command Center</span>
+          <span>{t(language, "commandCenter")}</span>
         </button>
 
         {/* Station Header */}
@@ -47,7 +52,7 @@ export default function CityDetail() {
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full bg-primary status-online" />
-              <span className="font-mono text-[10px] text-primary uppercase tracking-wider">Station Active</span>
+              <span className="font-mono text-[10px] text-primary uppercase tracking-wider">{t(language, "stationActive")}</span>
             </div>
             <div className="flex items-center gap-3 mb-1">
               <span className="text-3xl">{city.connection.emoji}</span>
@@ -75,12 +80,12 @@ export default function CityDetail() {
             <div className="relative z-10">
               <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
                 <Thermometer className="w-4 h-4 text-primary" />
-                Weather Telemetry
+                {t(language, "weatherTelemetry")}
               </h3>
               {weatherLoading || !weather ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground">
                   <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
-                  <span className="font-mono text-sm">Acquiring data...</span>
+                  <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
                 </div>
               ) : (
                 <div>
@@ -92,16 +97,16 @@ export default function CityDetail() {
                     />
                     <div>
                       <div className="font-mono text-4xl font-bold text-primary text-glow">
-                        {weather.temp}°F
+                        {formatTemp(weather.temp)}
                       </div>
                       <div className="text-muted-foreground capitalize text-sm">{weather.description}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { icon: Thermometer, label: "Feels Like", value: `${weather.feelsLike}°F` },
-                      { icon: Droplets, label: "Humidity", value: `${weather.humidity}%` },
-                      { icon: Wind, label: "Wind", value: `${weather.windSpeed} mph` },
+                      { icon: Thermometer, label: t(language, "feelsLike"), value: formatTemp(weather.feelsLike) },
+                      { icon: Droplets, label: t(language, "humidity"), value: `${weather.humidity}%` },
+                      { icon: Wind, label: t(language, "wind"), value: convertWindSpeed(weather.windSpeed) },
                     ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="bg-secondary/50 rounded-sm p-2.5 text-center border border-border/50">
                         <Icon className="w-3 h-3 text-primary mx-auto mb-1" />
@@ -125,7 +130,7 @@ export default function CityDetail() {
                 ) : (
                   <BookOpen className="w-4 h-4 text-accent" />
                 )}
-                {city.connection.type === "person" ? "Personnel File" : "Station Log"}
+                {city.connection.type === "person" ? t(language, "personnelFile") : t(language, "stationLog")}
               </h3>
               <div>
                 {city.connection.name && (
@@ -154,29 +159,32 @@ export default function CityDetail() {
           <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
           <div className="relative z-10">
             <h3 className="font-display font-semibold text-sm text-foreground mb-4 uppercase tracking-wider">
-              5-Day Forecast Projection
+              {t(language, "forecastProjection")}
             </h3>
             {forecastLoading || !forecast ? (
               <div className="text-muted-foreground text-center py-8 font-mono text-sm">
                 <Activity className="w-5 h-5 animate-pulse text-primary/50 mx-auto mb-2" />
-                Acquiring forecast telemetry...
+                {t(language, "acquiringForecast")}
               </div>
             ) : (
               <div className="grid grid-cols-5 gap-2">
-                {forecast.map((day) => (
-                  <div key={day.date} className="text-center bg-secondary/50 rounded-sm p-2.5 border border-border/50">
-                    <div className="font-mono text-[10px] font-medium text-primary/70 mb-1 uppercase">{day.dayName}</div>
-                    <img
-                      src={getWeatherIconUrl(day.icon)}
-                      alt={day.description}
-                      className="w-9 h-9 mx-auto"
-                    />
-                    <div className="font-mono font-semibold text-sm text-foreground">
-                      {day.tempMax}°
+                {forecast.map((day) => {
+                  const localDay = new Date(day.date + "T12:00:00").toLocaleDateString(dayLocale, { weekday: "short" });
+                  return (
+                    <div key={day.date} className="text-center bg-secondary/50 rounded-sm p-2.5 border border-border/50">
+                      <div className="font-mono text-[10px] font-medium text-primary/70 mb-1 uppercase">{localDay}</div>
+                      <img
+                        src={getWeatherIconUrl(day.icon)}
+                        alt={day.description}
+                        className="w-9 h-9 mx-auto"
+                      />
+                      <div className="font-mono font-semibold text-sm text-foreground">
+                        {formatTemp(day.tempMax)}
+                      </div>
+                      <div className="font-mono text-[10px] text-muted-foreground">{formatTemp(day.tempMin)}</div>
                     </div>
-                    <div className="font-mono text-[10px] text-muted-foreground">{day.tempMin}°</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -188,7 +196,7 @@ export default function CityDetail() {
             <Lightbulb className="w-4 h-4 text-accent shrink-0 mt-0.5" />
             <div>
               <h4 className="font-mono font-semibold text-accent text-[10px] uppercase tracking-wider mb-1">
-                Intel Report
+                {t(language, "intelReport")}
               </h4>
               <p className="text-muted-foreground text-sm">{city.funFact}</p>
             </div>
@@ -198,7 +206,7 @@ export default function CityDetail() {
 
       <footer className="border-t border-border py-4 text-center mt-10">
         <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-          M² Cloud Connect — Mission Control Interface — Built with Lovable
+          {t(language, "footer")}
         </p>
       </footer>
     </div>
