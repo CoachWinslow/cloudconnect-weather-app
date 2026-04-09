@@ -28,23 +28,29 @@ export default function CityDetail() {
     );
   }
 
-  const { data: weather, isLoading: weatherLoading } = useCityWeather(city.lat, city.lng);
-  const { data: forecast, isLoading: forecastLoading } = useCityForecast(city.lat, city.lng);
-  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(city.lat, city.lng);
+  const apiLang = language === "es" ? "es" : "en";
+  const { data: weather, isLoading: weatherLoading } = useCityWeather(city.lat, city.lng, apiLang);
+  const { data: forecast, isLoading: forecastLoading } = useCityForecast(city.lat, city.lng, apiLang);
+  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(city.lat, city.lng, apiLang);
 
   const dayLocale = language === "es" ? "es-CO" : "en-US";
 
-  // Generate a live weather summary sentence
   const getWeatherSummary = () => {
     if (!weather || !forecast) return null;
     const todayForecast = forecast[0];
     const tomorrowForecast = forecast[1];
-    let summary = `Currently ${weather.description} at ${formatTemp(weather.temp)}, feeling like ${formatTemp(weather.feelsLike)}.`;
+    let summary = t(language, "conditionsSummary")
+      .replace("{description}", weather.description)
+      .replace("{temp}", formatTemp(weather.temp))
+      .replace("{feelsLike}", formatTemp(weather.feelsLike));
     if (todayForecast) {
-      summary += ` Today's high near ${formatTemp(todayForecast.tempMax)} with a low of ${formatTemp(todayForecast.tempMin)}.`;
+      summary += t(language, "conditionsToday")
+        .replace("{high}", formatTemp(todayForecast.tempMax))
+        .replace("{low}", formatTemp(todayForecast.tempMin));
     }
     if (tomorrowForecast) {
-      summary += ` Tomorrow expect ${tomorrowForecast.description}.`;
+      summary += t(language, "conditionsTomorrow")
+        .replace("{description}", tomorrowForecast.description);
     }
     return summary;
   };

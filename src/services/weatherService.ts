@@ -30,9 +30,9 @@ export interface HourlyForecast {
   description: string;
 }
 
-export async function fetchCurrentWeather(lat: number, lng: number): Promise<WeatherData> {
+export async function fetchCurrentWeather(lat: number, lng: number, lang: string = "en"): Promise<WeatherData> {
   const res = await fetch(
-    `${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial`
+    `${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
   );
   if (!res.ok) throw new Error("Failed to fetch weather");
   const data = await res.json();
@@ -49,9 +49,9 @@ export async function fetchCurrentWeather(lat: number, lng: number): Promise<Wea
   };
 }
 
-export async function fetchForecast(lat: number, lng: number): Promise<ForecastDay[]> {
+export async function fetchForecast(lat: number, lng: number, lang: string = "en"): Promise<ForecastDay[]> {
   const res = await fetch(
-    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial`
+    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
   );
   if (!res.ok) throw new Error("Failed to fetch forecast");
   const data = await res.json();
@@ -81,14 +81,13 @@ export async function fetchForecast(lat: number, lng: number): Promise<ForecastD
   return Array.from(days.values()).slice(0, 5);
 }
 
-export async function fetchHourlyForecast(lat: number, lng: number): Promise<HourlyForecast[]> {
+export async function fetchHourlyForecast(lat: number, lng: number, lang: string = "en"): Promise<HourlyForecast[]> {
   const res = await fetch(
-    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial`
+    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
   );
   if (!res.ok) throw new Error("Failed to fetch hourly forecast");
   const data = await res.json();
 
-  // Take the next 4 three-hour slots
   return data.list.slice(0, 4).map((item: any) => {
     const d = new Date(item.dt * 1000);
     const hour = d.getHours();
