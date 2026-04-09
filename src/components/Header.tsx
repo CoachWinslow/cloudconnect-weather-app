@@ -17,7 +17,7 @@ export default function Header() {
           </div>
           <div>
             <h1 className="font-display font-bold text-sm tracking-wider uppercase text-foreground">
-              M3 CloudConnect
+              M² Cloud Connect
             </h1>
             <p className="font-mono text-[9px] text-primary/70 uppercase tracking-[0.2em]">
               Infrastructure Monitor v2.0
