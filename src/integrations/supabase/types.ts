@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      cities: {
+        Row: {
+          connection_description: string
+          connection_description_es: string | null
+          connection_emoji: string
+          connection_name: string | null
+          connection_tagline: string | null
+          connection_type: string
+          connection_url: string | null
+          country: string
+          created_at: string
+          fun_fact: string
+          fun_fact_es: string | null
+          id: string
+          lat: number
+          lng: number
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          connection_description: string
+          connection_description_es?: string | null
+          connection_emoji?: string
+          connection_name?: string | null
+          connection_tagline?: string | null
+          connection_type?: string
+          connection_url?: string | null
+          country: string
+          created_at?: string
+          fun_fact: string
+          fun_fact_es?: string | null
+          id: string
+          lat: number
+          lng: number
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          connection_description?: string
+          connection_description_es?: string | null
+          connection_emoji?: string
+          connection_name?: string | null
+          connection_tagline?: string | null
+          connection_type?: string
+          connection_url?: string | null
+          country?: string
+          created_at?: string
+          fun_fact?: string
+          fun_fact_es?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           city_id: string | null
@@ -74,15 +134,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +296,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "viewer"],
+    },
   },
 } as const
