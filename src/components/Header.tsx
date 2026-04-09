@@ -1,13 +1,15 @@
-import { Satellite, Activity, Radio, Globe, Thermometer, User, Heart, LogOut } from "lucide-react";
+import { Satellite, Activity, Radio, Globe, Thermometer, User, Heart, LogOut, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useUserRole";
 import { t } from "@/i18n/translations";
 
 export default function Header() {
   const navigate = useNavigate();
   const { tempUnit, language, toggleTempUnit, toggleLanguage } = useSettings();
   const { user, signOut } = useAuth();
+  const isAdmin = useIsAdmin();
 
   return (
     <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
@@ -56,8 +58,20 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Auth / Favorites */}
+          {/* Auth / Favorites / Admin */}
           <div className="flex items-center gap-1.5">
+            {user && isAdmin && (
+              <button
+                onClick={() => navigate("/admin")}
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-primary/30 hover:border-primary/60 transition-colors bg-primary/10"
+                title="Admin Dashboard"
+              >
+                <Shield className="w-3 h-3 text-primary" />
+                <span className="font-mono text-[10px] font-semibold text-primary uppercase hidden sm:inline">
+                  Admin
+                </span>
+              </button>
+            )}
             {user && (
               <button
                 onClick={() => navigate("/favorites")}
