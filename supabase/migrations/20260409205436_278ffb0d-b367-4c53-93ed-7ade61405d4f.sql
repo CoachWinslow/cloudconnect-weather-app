@@ -1,0 +1,1 @@
+UPDATE cities SET connection_url = 'https://www.equinix.com,https://purplehorizons.io/events/south-miami-tech-tuesday' WHERE id = 'miami';
