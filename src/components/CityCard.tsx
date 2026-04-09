@@ -2,6 +2,7 @@ import { City } from "@/data/cities";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Thermometer, ChevronRight } from "lucide-react";
+import FavoriteButton from "@/components/FavoriteButton";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
@@ -71,8 +72,9 @@ export default function CityCard({ city, weather, index }: CityCardProps) {
         )}
       </div>
 
-      <div className="relative z-10 flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="font-mono text-[9px] text-primary/60 uppercase tracking-wider flex items-center gap-1">
+      <div className="relative z-10 flex items-center justify-between mt-2">
+        <FavoriteButton cityId={city.id} cityName={city.name} lat={city.lat} lng={city.lng} />
+        <span className="font-mono text-[9px] text-primary/60 uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {t(language, "accessData")} <ChevronRight className="w-3 h-3" />
         </span>
       </div>

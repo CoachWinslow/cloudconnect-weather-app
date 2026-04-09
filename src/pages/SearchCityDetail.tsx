@@ -3,6 +3,7 @@ import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
 import { ArrowLeft, Droplets, Wind, Thermometer, MapPin, Activity } from "lucide-react";
+import FavoriteButton from "@/components/FavoriteButton";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
@@ -43,6 +44,7 @@ export default function SearchCityDetail() {
               <span className="text-3xl">🔍</span>
               <div>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">{name}</h2>
+                <FavoriteButton cityName={name} lat={lat} lng={lng} />
                 <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
                   <MapPin className="w-3 h-3" />
                   <span className="font-mono text-[10px] text-primary/60">
