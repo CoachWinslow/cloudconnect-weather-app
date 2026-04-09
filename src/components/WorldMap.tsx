@@ -56,6 +56,14 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     };
   }, []);
 
+  // Expose navigate for popup onclick
+  useEffect(() => {
+    (window as any).__navigateToCity = (cityId: string) => {
+      navigate(`/city/${cityId}`);
+    };
+    return () => { delete (window as any).__navigateToCity; };
+  }, [navigate]);
+
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !cities.length) return;
@@ -69,8 +77,8 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       const marker = L.marker([city.lat, city.lng], {
         icon: L.divIcon({
           className: "city-marker pulse",
-          iconSize: [14, 14],
-          iconAnchor: [7, 7],
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
         }),
       }).addTo(map);
 
@@ -87,13 +95,13 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
         : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
       marker.bindPopup(
-        `<div style="padding:10px 12px;min-width:150px;">
+        `<div style="padding:10px 12px;min-width:150px;cursor:pointer;" onclick="window.__navigateToCity('${city.id}')">
           <div style="font-family:Space Grotesk,sans-serif;font-weight:600;font-size:13px;color:hsl(180,20%,90%);">${city.connection.emoji} ${city.name}</div>
           <div style="font-size:10px;color:hsl(200,15%,50%);margin-top:2px;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.05em;">${city.country}</div>
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -4] }
+        { closeButton: false, offset: [0, -6] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
