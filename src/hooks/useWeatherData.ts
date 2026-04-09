@@ -29,26 +29,29 @@ export function useAllCitiesWeather(lang: string = "en") {
   });
 }
 
-export function useCityWeather(lat: number, lng: number, lang: string = "en") {
+export function useCityWeather(lat: number, lng: number, lang: string = "en", enabled: boolean = true) {
   return useQuery<WeatherData>({
     queryKey: ["weather", lat, lng, lang],
     queryFn: () => fetchCurrentWeather(lat, lng, lang),
     staleTime: 10 * 60 * 1000,
+    enabled,
   });
 }
 
-export function useCityForecast(lat: number, lng: number, lang: string = "en") {
+export function useCityForecast(lat: number, lng: number, lang: string = "en", enabled: boolean = true) {
   return useQuery<ForecastDay[]>({
     queryKey: ["forecast", lat, lng, lang],
     queryFn: () => fetchForecast(lat, lng, lang),
     staleTime: 10 * 60 * 1000,
+    enabled,
   });
 }
 
-export function useHourlyForecast(lat: number, lng: number, lang: string = "en") {
+export function useHourlyForecast(lat: number, lng: number, lang: string = "en", enabled: boolean = true) {
   return useQuery<HourlyForecast[]>({
     queryKey: ["hourly", lat, lng, lang],
     queryFn: () => fetchHourlyForecast(lat, lng, lang),
     staleTime: 10 * 60 * 1000,
+    enabled,
   });
 }
