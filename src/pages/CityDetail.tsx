@@ -4,6 +4,7 @@ import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
 import { ArrowLeft, Droplets, Wind, Thermometer, User, BookOpen, Lightbulb, MapPin, Activity } from "lucide-react";
+import FavoriteButton from "@/components/FavoriteButton";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
@@ -57,9 +58,12 @@ export default function CityDetail() {
             <div className="flex items-center gap-3 mb-1">
               <span className="text-3xl">{city.connection.emoji}</span>
               <div>
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">
-                  {city.name}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">
+                    {city.name}
+                  </h2>
+                  <FavoriteButton cityId={city.id} cityName={city.name} lat={city.lat} lng={city.lng} />
+                </div>
                 <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
                   <MapPin className="w-3 h-3" />
                   <span>{city.country}</span>
