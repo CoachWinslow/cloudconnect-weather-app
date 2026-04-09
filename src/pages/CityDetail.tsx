@@ -15,6 +15,11 @@ export default function CityDetail() {
   const { data: cities, isLoading: citiesLoading } = useCities();
   const city = cities?.find((c) => c.id === cityId);
 
+  const apiLang = language === "es" ? "es" : "en";
+  const { data: weather, isLoading: weatherLoading } = useCityWeather(city?.lat ?? 0, city?.lng ?? 0, apiLang, !!city);
+  const { data: forecast, isLoading: forecastLoading } = useCityForecast(city?.lat ?? 0, city?.lng ?? 0, apiLang, !!city);
+  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(city?.lat ?? 0, city?.lng ?? 0, apiLang, !!city);
+
   if (citiesLoading) {
     return (
       <div className="min-h-screen bg-background grid-bg">
@@ -40,11 +45,6 @@ export default function CityDetail() {
       </div>
     );
   }
-
-  const apiLang = language === "es" ? "es" : "en";
-  const { data: weather, isLoading: weatherLoading } = useCityWeather(city.lat, city.lng, apiLang);
-  const { data: forecast, isLoading: forecastLoading } = useCityForecast(city.lat, city.lng, apiLang);
-  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(city.lat, city.lng, apiLang);
 
   const dayLocale = language === "es" ? "es-CO" : "en-US";
 
