@@ -1,0 +1,4 @@
+UPDATE cities SET 
+  connection_description = 'Home of DVSport Software, my first interaction with software. As a college football coach in 2003, we transitioned from linear (VHS tapes) to non-linear digital video editing systems. I played a critical role in the implementation of the software and served as point man for the staff. Today, DVSport is a premier digital video acquisition, analysis, and playback platform used for instant replay and coaching analysis across NCAA football and basketball programs nationwide. Carnegie Mellon University is also located in Pittsburgh, a global leader in computing, robotics, and artificial intelligence, known as one of the birthplaces of AI.',
+  connection_url = 'https://www.dvsport.com,https://ai.cmu.edu/research-and-policy-impact'
+WHERE id = 'pittsburgh';

@@ -251,14 +251,28 @@ export default function CityDetail() {
                   : city.connection.description}
               </p>
               {city.connection.url && (
-                <a
-                  href={city.connection.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-3 font-mono text-[10px] text-primary hover:text-primary/80 uppercase tracking-wider transition-colors"
-                >
-                  {t(language, "learnMore")} →
-                </a>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
+                  {city.connection.url.split(",").map((rawUrl) => {
+                    const url = rawUrl.trim();
+                    let label: string;
+                    try {
+                      label = new URL(url).hostname.replace("www.", "");
+                    } catch {
+                      label = url;
+                    }
+                    return (
+                      <a
+                        key={url}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-mono text-[10px] text-primary hover:text-primary/80 uppercase tracking-wider transition-colors"
+                      >
+                        {label} →
+                      </a>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
