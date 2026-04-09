@@ -1,0 +1,1 @@
+UPDATE cities SET connection_url = 'https://www.albright.edu,https://www.youtube.com' WHERE id = 'reading';
