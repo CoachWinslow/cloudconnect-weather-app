@@ -14,6 +14,10 @@ const translations = {
     satelliteOverlay: "Satellite Overlay — Live Feed",
     monitoredLocations: "Monitored Locations",
     stations: "stations",
+    searchPlaceholder: "Search any city worldwide...",
+    searchNoResults: "No cities found",
+    searchHint: "Type to search any city in the world",
+    backToSearch: "Searched City",
 
     // CityCard
     personnel: "Personnel",
@@ -60,6 +64,10 @@ const translations = {
     satelliteOverlay: "Vista Satelital — Señal en Vivo",
     monitoredLocations: "Ubicaciones Monitoreadas",
     stations: "estaciones",
+    searchPlaceholder: "Buscar cualquier ciudad del mundo...",
+    searchNoResults: "No se encontraron ciudades",
+    searchHint: "Escribe para buscar cualquier ciudad del mundo",
+    backToSearch: "Ciudad Buscada",
 
     // CityCard
     personnel: "Personal",
