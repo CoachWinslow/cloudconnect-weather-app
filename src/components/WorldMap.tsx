@@ -20,7 +20,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     if (!mapRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapRef.current, {
-      center: [20, -40],
+      center: [25, -60],
       zoom: 3,
       minZoom: 2,
       maxZoom: 8,
