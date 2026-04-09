@@ -56,6 +56,14 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     };
   }, []);
 
+  // Expose navigate for popup onclick
+  useEffect(() => {
+    (window as any).__navigateToCity = (cityId: string) => {
+      navigate(`/city/${cityId}`);
+    };
+    return () => { delete (window as any).__navigateToCity; };
+  }, [navigate]);
+
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !cities.length) return;
@@ -93,7 +101,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -4] }
+        { closeButton: false, offset: [0, -6] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
