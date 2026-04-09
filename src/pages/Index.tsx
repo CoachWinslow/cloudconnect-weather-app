@@ -9,8 +9,9 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
 const Index = () => {
-  const { data: weatherData } = useAllCitiesWeather();
   const { language } = useSettings();
+  const apiLang = language === "es" ? "es" : "en";
+  const { data: weatherData } = useAllCitiesWeather(apiLang);
 
   const onlineCount = weatherData ? Object.keys(weatherData).length : 0;
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';

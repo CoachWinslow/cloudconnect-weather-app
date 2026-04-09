@@ -16,8 +16,9 @@ export default function SearchCityDetail() {
   const lng = parseFloat(params.get("lng") || "0");
   const name = decodeURIComponent(params.get("name") || "Unknown");
 
-  const { data: weather, isLoading: weatherLoading } = useCityWeather(lat, lng);
-  const { data: forecast, isLoading: forecastLoading } = useCityForecast(lat, lng);
+  const apiLang = language === "es" ? "es" : "en";
+  const { data: weather, isLoading: weatherLoading } = useCityWeather(lat, lng, apiLang);
+  const { data: forecast, isLoading: forecastLoading } = useCityForecast(lat, lng, apiLang);
   const dayLocale = language === "es" ? "es-CO" : "en-US";
 
   return (
