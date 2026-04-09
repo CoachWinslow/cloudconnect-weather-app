@@ -2,19 +2,32 @@ import Header from "@/components/Header";
 import WorldMap from "@/components/WorldMap";
 import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
-import { cities } from "@/data/cities";
+import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe } from "lucide-react";
+import { Radar, Database, Globe, Activity } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
 const Index = () => {
   const { language } = useSettings();
   const apiLang = language === "es" ? "es" : "en";
+  const { data: cities, isLoading: citiesLoading } = useCities();
   const { data: weatherData } = useAllCitiesWeather(apiLang);
 
   const onlineCount = weatherData ? Object.keys(weatherData).length : 0;
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+  if (citiesLoading || !cities) {
+    return (
+      <div className="min-h-screen bg-background grid-bg">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <Activity className="w-5 h-5 animate-pulse text-primary mr-2" />
+          <span className="font-mono text-sm text-muted-foreground">Initializing stations...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background grid-bg relative">
@@ -68,7 +81,7 @@ const Index = () => {
               {t(language, "satelliteOverlay")}
             </span>
           </div>
-          <WorldMap weatherData={weatherData || {}} />
+          <WorldMap cities={cities} weatherData={weatherData || {}} />
         </div>
 
         {/* City Cards */}

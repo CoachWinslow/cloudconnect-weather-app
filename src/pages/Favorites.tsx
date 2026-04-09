@@ -4,15 +4,16 @@ import Header from "@/components/Header";
 import { useFavorites, useRemoveFavorite, useUpdateFavoriteNote } from "@/hooks/useFavorites";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useCities } from "@/hooks/useCities";
 import { t } from "@/i18n/translations";
 import { ArrowLeft, Heart, Trash2, MapPin, StickyNote, Edit2, Check, X } from "lucide-react";
-import { cities } from "@/data/cities";
 
 export default function Favorites() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { language } = useSettings();
   const { data: favorites, isLoading } = useFavorites();
+  const { data: cities } = useCities();
   const removeFav = useRemoveFavorite();
   const updateNote = useUpdateFavoriteNote();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,7 +36,7 @@ export default function Favorites() {
   }
 
   const handleNavigate = (fav: any) => {
-    const listedCity = cities.find((c) => c.id === fav.city_id);
+    const listedCity = cities?.find((c) => c.id === fav.city_id);
     if (listedCity) {
       navigate(`/city/${listedCity.id}`);
     } else {
@@ -109,7 +110,6 @@ export default function Favorites() {
                   </button>
                 </div>
 
-                {/* Note section */}
                 <div className="relative z-10 mt-2 border-t border-border/50 pt-2">
                   {editingId === fav.id ? (
                     <div className="flex items-center gap-2">
