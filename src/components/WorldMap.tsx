@@ -73,13 +73,16 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       if (layer instanceof L.Marker) map.removeLayer(layer);
     });
 
+    const markerIcon = L.divIcon({
+      className: "city-marker pulse",
+      html: '<span class="city-marker__core" aria-hidden="true"></span>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+    });
+
     cities.forEach((city) => {
       const marker = L.marker([city.lat, city.lng], {
-        icon: L.divIcon({
-          className: "city-marker pulse",
-          iconSize: [12, 12],
-          iconAnchor: [6, 6],
-        }),
+        icon: markerIcon,
       }).addTo(map);
 
       marker.on("click", () => {
@@ -101,7 +104,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -6] }
+        { closeButton: false, offset: [0, -14] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
