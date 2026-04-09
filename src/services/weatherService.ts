@@ -23,6 +23,13 @@ export interface ForecastDay {
   description: string;
 }
 
+export interface HourlyForecast {
+  time: string; // e.g. "3 PM"
+  temp: number;
+  icon: string;
+  description: string;
+}
+
 export async function fetchCurrentWeather(lat: number, lng: number): Promise<WeatherData> {
   const res = await fetch(
     `${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial`
@@ -72,6 +79,28 @@ export async function fetchForecast(lat: number, lng: number): Promise<ForecastD
   }
 
   return Array.from(days.values()).slice(0, 5);
+}
+
+export async function fetchHourlyForecast(lat: number, lng: number): Promise<HourlyForecast[]> {
+  const res = await fetch(
+    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial`
+  );
+  if (!res.ok) throw new Error("Failed to fetch hourly forecast");
+  const data = await res.json();
+
+  // Take the next 4 three-hour slots
+  return data.list.slice(0, 4).map((item: any) => {
+    const d = new Date(item.dt * 1000);
+    const hour = d.getHours();
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const h = hour % 12 || 12;
+    return {
+      time: `${h} ${ampm}`,
+      temp: Math.round(item.main.temp),
+      icon: item.weather[0].icon,
+      description: item.weather[0].description,
+    };
+  });
 }
 
 export function getWeatherIconUrl(icon: string): string {

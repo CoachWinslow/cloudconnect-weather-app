@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { cities } from "@/data/cities";
-import { fetchCurrentWeather, fetchForecast, WeatherData, ForecastDay } from "@/services/weatherService";
+import { fetchCurrentWeather, fetchForecast, fetchHourlyForecast, WeatherData, ForecastDay, HourlyForecast } from "@/services/weatherService";
 
 export function useAllCitiesWeather() {
   return useQuery({
@@ -40,6 +40,14 @@ export function useCityForecast(lat: number, lng: number) {
   return useQuery<ForecastDay[]>({
     queryKey: ["forecast", lat, lng],
     queryFn: () => fetchForecast(lat, lng),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useHourlyForecast(lat: number, lng: number) {
+  return useQuery<HourlyForecast[]>({
+    queryKey: ["hourly", lat, lng],
+    queryFn: () => fetchHourlyForecast(lat, lng),
     staleTime: 10 * 60 * 1000,
   });
 }
