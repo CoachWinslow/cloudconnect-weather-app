@@ -1,8 +1,8 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
+import { useCityWeather, useCityForecast, useHourlyForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
-import { ArrowLeft, Droplets, Wind, Thermometer, MapPin, Activity } from "lucide-react";
+import { ArrowLeft, Droplets, Wind, Thermometer, CloudSun, Lightbulb, MapPin, Activity, Clock } from "lucide-react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
@@ -19,7 +19,28 @@ export default function SearchCityDetail() {
   const apiLang = language === "es" ? "es" : "en";
   const { data: weather, isLoading: weatherLoading } = useCityWeather(lat, lng, apiLang);
   const { data: forecast, isLoading: forecastLoading } = useCityForecast(lat, lng, apiLang);
+  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(lat, lng, apiLang);
   const dayLocale = language === "es" ? "es-CO" : "en-US";
+
+  const getWeatherSummary = () => {
+    if (!weather || !forecast) return null;
+    const todayForecast = forecast[0];
+    const tomorrowForecast = forecast[1];
+    let summary = t(language, "conditionsSummary")
+      .replace("{description}", weather.description)
+      .replace("{temp}", formatTemp(weather.temp))
+      .replace("{feelsLike}", formatTemp(weather.feelsLike));
+    if (todayForecast) {
+      summary += t(language, "conditionsToday")
+        .replace("{high}", formatTemp(todayForecast.tempMax))
+        .replace("{low}", formatTemp(todayForecast.tempMin));
+    }
+    if (tomorrowForecast) {
+      summary += t(language, "conditionsTomorrow")
+        .replace("{description}", tomorrowForecast.description);
+    }
+    return summary;
+  };
 
   return (
     <div className="min-h-screen bg-background grid-bg">
@@ -44,8 +65,10 @@ export default function SearchCityDetail() {
             <div className="flex items-center gap-3 mb-1">
               <span className="text-3xl">🔍</span>
               <div>
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">{name}</h2>
-                <FavoriteButton cityName={name} lat={lat} lng={lng} />
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">{name}</h2>
+                  <FavoriteButton cityName={name} lat={lat} lng={lng} />
+                </div>
                 <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
                   <MapPin className="w-3 h-3" />
                   <span className="font-mono text-[10px] text-primary/60">
@@ -57,48 +80,92 @@ export default function SearchCityDetail() {
           </div>
         </div>
 
-        {/* Weather */}
-        <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden mb-4">
-          <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
-          <div className="relative z-10">
-            <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
-              <Thermometer className="w-4 h-4 text-primary" />
-              {t(language, "weatherTelemetry")}
-            </h3>
-            {weatherLoading || !weather ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground">
-                <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
-                <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
-              </div>
-            ) : (
-              <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <img src={getWeatherIconUrl(weather.icon)} alt={weather.description} className="w-16 h-16" />
-                  <div>
-                    <div className="font-mono text-4xl font-bold text-primary text-glow">{formatTemp(weather.temp)}</div>
-                    <div className="text-muted-foreground capitalize text-sm">{weather.description}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Weather Telemetry */}
+          <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden" style={{ animationDelay: "100ms" }}>
+            <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+            <div className="relative z-10">
+              <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <Thermometer className="w-4 h-4 text-primary" />
+                {t(language, "weatherTelemetry")}
+              </h3>
+              {weatherLoading || !weather ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
+                  <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <img src={getWeatherIconUrl(weather.icon)} alt={weather.description} className="w-16 h-16" />
+                    <div>
+                      <div className="font-mono text-4xl font-bold text-primary text-glow">{formatTemp(weather.temp)}</div>
+                      <div className="text-muted-foreground capitalize text-sm">{weather.description}</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { icon: Thermometer, label: t(language, "feelsLike"), value: formatTemp(weather.feelsLike) },
+                      { icon: Droplets, label: t(language, "humidity"), value: `${weather.humidity}%` },
+                      { icon: Wind, label: t(language, "wind"), value: convertWindSpeed(weather.windSpeed) },
+                    ].map(({ icon: Icon, label, value }) => (
+                      <div key={label} className="bg-secondary/50 rounded-sm p-2.5 text-center border border-border/50">
+                        <Icon className="w-3 h-3 text-primary mx-auto mb-1" />
+                        <div className="font-mono text-[9px] text-muted-foreground uppercase">{label}</div>
+                        <div className="font-mono font-semibold text-sm text-foreground">{value}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { icon: Thermometer, label: t(language, "feelsLike"), value: formatTemp(weather.feelsLike) },
-                    { icon: Droplets, label: t(language, "humidity"), value: `${weather.humidity}%` },
-                    { icon: Wind, label: t(language, "wind"), value: convertWindSpeed(weather.windSpeed) },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="bg-secondary/50 rounded-sm p-2.5 text-center border border-border/50">
-                      <Icon className="w-3 h-3 text-primary mx-auto mb-1" />
-                      <div className="font-mono text-[9px] text-muted-foreground uppercase">{label}</div>
-                      <div className="font-mono font-semibold text-sm text-foreground">{value}</div>
-                    </div>
-                  ))}
+              )}
+            </div>
+          </div>
+
+          {/* Current Conditions */}
+          <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden" style={{ animationDelay: "200ms" }}>
+            <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+            <div className="relative z-10">
+              <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <CloudSun className="w-4 h-4 text-accent" />
+                {t(language, "currentConditions")}
+              </h3>
+              {weatherLoading || !weather ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
+                  <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    {getWeatherSummary()}
+                  </p>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Clock className="w-3 h-3 text-primary/70" />
+                    <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">{t(language, "nextHours")}</span>
+                  </div>
+                  {hourlyLoading || !hourly ? (
+                    <div className="text-muted-foreground text-center py-4 font-mono text-xs">
+                      <Activity className="w-4 h-4 animate-pulse text-primary/50 mx-auto mb-1" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {hourly.map((h, i) => (
+                        <div key={i} className="text-center bg-secondary/50 rounded-sm p-2 border border-border/50">
+                          <div className="font-mono text-[10px] font-medium text-primary/70 mb-0.5">{h.time}</div>
+                          <img src={getWeatherIconUrl(h.icon)} alt={h.description} className="w-8 h-8 mx-auto" />
+                          <div className="font-mono font-semibold text-sm text-foreground">{formatTemp(h.temp)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Forecast */}
-        <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden" style={{ animationDelay: "100ms" }}>
+        <div className="bg-card glow-border hud-corners rounded-md p-5 mt-4 animate-fade-in relative overflow-hidden" style={{ animationDelay: "300ms" }}>
           <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
           <div className="relative z-10">
             <h3 className="font-display font-semibold text-sm text-foreground mb-4 uppercase tracking-wider">
@@ -124,6 +191,21 @@ export default function SearchCityDetail() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Intel Report (blank placeholder) */}
+        <div className="glow-border-accent hud-corners rounded-md p-4 mt-4 animate-fade-in bg-accent/5 relative overflow-hidden" style={{ animationDelay: "400ms" }}>
+          <div className="relative z-10 flex items-start gap-3">
+            <Lightbulb className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-mono font-semibold text-accent text-[10px] uppercase tracking-wider mb-1">
+                {t(language, "intelReport")}
+              </h4>
+              <p className="text-muted-foreground/50 text-sm leading-relaxed italic font-mono">
+                {language === "es" ? "Sin datos de inteligencia disponibles para esta estación." : "No intel data available for this station."}
+              </p>
+            </div>
           </div>
         </div>
       </div>
