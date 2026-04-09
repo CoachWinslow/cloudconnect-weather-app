@@ -140,36 +140,46 @@ export default function CityDetail() {
             </div>
           </div>
 
-          {/* Connection */}
+          {/* Current Conditions */}
           <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden" style={{ animationDelay: "200ms" }}>
             <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
             <div className="relative z-10">
               <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
-                {city.connection.type === "person" ? (
-                  <User className="w-4 h-4 text-accent" />
-                ) : (
-                  <BookOpen className="w-4 h-4 text-accent" />
-                )}
-                {city.connection.type === "person" ? t(language, "personnelFile") : t(language, "stationLog")}
+                <CloudSun className="w-4 h-4 text-accent" />
+                {t(language, "currentConditions")}
               </h3>
-              <div>
-                {city.connection.name && (
-                  <div className="mb-3">
-                    <div className="w-12 h-12 rounded-sm bg-accent/10 border border-accent/20 flex items-center justify-center text-2xl mb-2">
-                      {city.connection.emoji}
-                    </div>
-                    <h4 className="font-display font-semibold text-foreground">
-                      {city.connection.name}
-                    </h4>
-                    {city.connection.tagline && (
-                      <p className="text-xs text-accent font-mono">{city.connection.tagline}</p>
-                    )}
+              {weatherLoading || !weather ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
+                  <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    {getWeatherSummary()}
+                  </p>
+                  {/* Next hours */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Clock className="w-3 h-3 text-primary/70" />
+                    <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">{t(language, "nextHours")}</span>
                   </div>
-                )}
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {language === "es" && city.connection.description_es ? city.connection.description_es : city.connection.description}
-                </p>
-              </div>
+                  {hourlyLoading || !hourly ? (
+                    <div className="text-muted-foreground text-center py-4 font-mono text-xs">
+                      <Activity className="w-4 h-4 animate-pulse text-primary/50 mx-auto mb-1" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {hourly.map((h, i) => (
+                        <div key={i} className="text-center bg-secondary/50 rounded-sm p-2 border border-border/50">
+                          <div className="font-mono text-[10px] font-medium text-primary/70 mb-0.5">{h.time}</div>
+                          <img src={getWeatherIconUrl(h.icon)} alt={h.description} className="w-8 h-8 mx-auto" />
+                          <div className="font-mono font-semibold text-sm text-foreground">{formatTemp(h.temp)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
