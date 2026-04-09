@@ -1,0 +1,135 @@
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
+import { getWeatherIconUrl } from "@/services/weatherService";
+import Header from "@/components/Header";
+import { ArrowLeft, Droplets, Wind, Thermometer, MapPin, Activity } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
+import { t } from "@/i18n/translations";
+
+export default function SearchCityDetail() {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const { formatTemp, convertWindSpeed, language } = useSettings();
+
+  const lat = parseFloat(params.get("lat") || "0");
+  const lng = parseFloat(params.get("lng") || "0");
+  const name = decodeURIComponent(params.get("name") || "Unknown");
+
+  const { data: weather, isLoading: weatherLoading } = useCityWeather(lat, lng);
+  const { data: forecast, isLoading: forecastLoading } = useCityForecast(lat, lng);
+  const dayLocale = language === "es" ? "es-CO" : "en-US";
+
+  return (
+    <div className="min-h-screen bg-background grid-bg">
+      <Header />
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 font-mono text-xs uppercase tracking-wider"
+        >
+          <ArrowLeft className="w-3 h-3" />
+          <span>{t(language, "commandCenter")}</span>
+        </button>
+
+        {/* Station Header */}
+        <div className="mb-6 animate-fade-in glow-border hud-corners rounded-md p-5 bg-card relative overflow-hidden">
+          <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-primary status-online" />
+              <span className="font-mono text-[10px] text-primary uppercase tracking-wider">{t(language, "backToSearch")}</span>
+            </div>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-3xl">🔍</span>
+              <div>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">{name}</h2>
+                <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+                  <MapPin className="w-3 h-3" />
+                  <span className="font-mono text-[10px] text-primary/60">
+                    {lat.toFixed(4)}°{lat >= 0 ? "N" : "S"}, {Math.abs(lng).toFixed(4)}°{lng >= 0 ? "E" : "W"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weather */}
+        <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden mb-4">
+          <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+          <div className="relative z-10">
+            <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
+              <Thermometer className="w-4 h-4 text-primary" />
+              {t(language, "weatherTelemetry")}
+            </h3>
+            {weatherLoading || !weather ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground">
+                <Activity className="w-5 h-5 animate-pulse text-primary/50 mr-2" />
+                <span className="font-mono text-sm">{t(language, "acquiringData")}</span>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center gap-4 mb-4">
+                  <img src={getWeatherIconUrl(weather.icon)} alt={weather.description} className="w-16 h-16" />
+                  <div>
+                    <div className="font-mono text-4xl font-bold text-primary text-glow">{formatTemp(weather.temp)}</div>
+                    <div className="text-muted-foreground capitalize text-sm">{weather.description}</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { icon: Thermometer, label: t(language, "feelsLike"), value: formatTemp(weather.feelsLike) },
+                    { icon: Droplets, label: t(language, "humidity"), value: `${weather.humidity}%` },
+                    { icon: Wind, label: t(language, "wind"), value: convertWindSpeed(weather.windSpeed) },
+                  ].map(({ icon: Icon, label, value }) => (
+                    <div key={label} className="bg-secondary/50 rounded-sm p-2.5 text-center border border-border/50">
+                      <Icon className="w-3 h-3 text-primary mx-auto mb-1" />
+                      <div className="font-mono text-[9px] text-muted-foreground uppercase">{label}</div>
+                      <div className="font-mono font-semibold text-sm text-foreground">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Forecast */}
+        <div className="bg-card glow-border hud-corners rounded-md p-5 animate-fade-in relative overflow-hidden" style={{ animationDelay: "100ms" }}>
+          <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+          <div className="relative z-10">
+            <h3 className="font-display font-semibold text-sm text-foreground mb-4 uppercase tracking-wider">
+              {t(language, "forecastProjection")}
+            </h3>
+            {forecastLoading || !forecast ? (
+              <div className="text-muted-foreground text-center py-8 font-mono text-sm">
+                <Activity className="w-5 h-5 animate-pulse text-primary/50 mx-auto mb-2" />
+                {t(language, "acquiringForecast")}
+              </div>
+            ) : (
+              <div className="grid grid-cols-5 gap-2">
+                {forecast.map((day) => {
+                  const localDay = new Date(day.date + "T12:00:00").toLocaleDateString(dayLocale, { weekday: "short" });
+                  return (
+                    <div key={day.date} className="text-center bg-secondary/50 rounded-sm p-2.5 border border-border/50">
+                      <div className="font-mono text-[10px] font-medium text-primary/70 mb-1 uppercase">{localDay}</div>
+                      <img src={getWeatherIconUrl(day.icon)} alt={day.description} className="w-9 h-9 mx-auto" />
+                      <div className="font-mono font-semibold text-sm text-foreground">{formatTemp(day.tempMax)}</div>
+                      <div className="font-mono text-[10px] text-muted-foreground">{formatTemp(day.tempMin)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <footer className="border-t border-border py-4 text-center mt-10">
+        <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+          {t(language, "footer")}
+        </p>
+      </footer>
+    </div>
+  );
+}
