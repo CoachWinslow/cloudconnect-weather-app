@@ -44,6 +44,7 @@ const translations = {
     forecastProjection: "5-Day Forecast Projection",
     acquiringForecast: "Acquiring forecast telemetry...",
     intelReport: "Intel Report",
+    learnMore: "Learn More",
 
     // Footer
     footer: "M² Cloud Connect — Mission Control Interface — Built with Lovable",
@@ -99,6 +100,7 @@ const translations = {
     forecastProjection: "Pronóstico de 5 Días",
     acquiringForecast: "Adquiriendo pronóstico...",
     intelReport: "Reporte de Inteligencia",
+    learnMore: "Más Información",
 
     // Footer
     footer: "M² Cloud Connect — Interfaz de Control de Misión — Hecho con Lovable",
