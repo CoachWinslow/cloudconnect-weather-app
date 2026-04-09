@@ -3,6 +3,7 @@ export interface CityConnection {
   name?: string;
   tagline?: string;
   description: string;
+  description_es?: string;
   emoji: string;
   url?: string;
 }
@@ -15,6 +16,7 @@ export interface City {
   lng: number;
   connection: CityConnection;
   funFact: string;
+  funFact_es?: string;
 }
 
 export const cities: City[] = [
@@ -27,10 +29,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of DVSport Software — my first interaction with software as a football coach (2004). DVSport is a premier digital video acquisition, analysis, and playback platform used for instant replay and coaching analysis across NCAA football and basketball programs nationwide.",
+      description_es: "Hogar de DVSport Software — mi primera interacción con software como entrenador de fútbol americano (2004). DVSport es una plataforma líder de adquisición, análisis y reproducción de video digital utilizada para repeticiones instantáneas y análisis de coaching en programas de fútbol americano y baloncesto de la NCAA.",
       emoji: "🏈",
       url: "https://www.dvsport.com/",
     },
     funFact: "DVSport is a premier digital video acquisition, analysis, and playback platform used for instant replay and coaching analysis across NCAA football and basketball programs nationwide.",
+    funFact_es: "DVSport es una plataforma líder de adquisición, análisis y reproducción de video digital utilizada para repeticiones instantáneas y análisis de coaching en programas de fútbol americano y baloncesto de la NCAA.",
   },
   {
     id: "sharon-hermitage",
@@ -41,10 +45,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of LindenPointe Innovative Business Campus — my hometown. Before the cloud, there was the current. The power transformers built here by Westinghouse Electric (1922–1985) helped wire America's electrical grid.",
+      description_es: "Hogar del campus empresarial innovador LindenPointe — mi ciudad natal. Antes de la nube, estaba la corriente. Los transformadores de energía construidos aquí por Westinghouse Electric (1922–1985) ayudaron a cablear la red eléctrica de Estados Unidos.",
       emoji: "⚡",
       url: "https://www.hermitage.net/452/LindenPointe-Innovative-Business-Campus",
     },
     funFact: "Before the cloud, there was the current. The power transformers built here by Westinghouse Electric (1922–1985) helped wire America's electrical grid — the same infrastructure that keeps data centers humming and cloud services online 24/7.",
+    funFact_es: "Antes de la nube, estaba la corriente. Los transformadores de energía construidos aquí por Westinghouse Electric (1922–1985) ayudaron a cablear la red eléctrica de Estados Unidos — la misma infraestructura que mantiene los centros de datos funcionando y los servicios en la nube en línea las 24 horas.",
   },
   {
     id: "pleasanton",
@@ -55,10 +61,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of ICE Mortgage Technology — my first job in tech as a Data Migration Engineer & Senior Consultant. Pleasanton grew along historic railroad lines that once connected the West Coast.",
+      description_es: "Hogar de ICE Mortgage Technology — mi primer trabajo en tecnología como Ingeniero de Migración de Datos y Consultor Senior. Pleasanton creció a lo largo de las líneas ferroviarias históricas que una vez conectaron la Costa Oeste.",
       emoji: "🏠",
       url: "https://mortgagetech.ice.com",
     },
     funFact: "Pleasanton grew along historic railroad lines that once connected the West Coast — and today it's a SaaS corridor connecting the mortgage industry to the cloud. Physical connectivity became digital connectivity.",
+    funFact_es: "Pleasanton creció a lo largo de las líneas ferroviarias históricas que conectaban la Costa Oeste — y hoy es un corredor SaaS que conecta la industria hipotecaria con la nube. La conectividad física se convirtió en conectividad digital.",
   },
   {
     id: "queretaro",
@@ -69,9 +77,11 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of AWS Mexico (Central) Region — mx-central-1. The first AWS cloud region in Mexico, built to deliver low-latency cloud services across the country and nearby markets.",
+      description_es: "Hogar de la Región AWS México (Central) — mx-central-1. La primera región de nube de AWS en México, construida para ofrecer servicios de nube de baja latencia en todo el país y mercados cercanos.",
       emoji: "🇲🇽",
     },
     funFact: "I studied Spanish in Querétaro when we had to use internet cafés after school hours — now it's home to AWS's Mexico (Central) cloud region powering the modern internet.",
+    funFact_es: "Estudié español en Querétaro cuando teníamos que usar cafés internet después de clases — ahora es hogar de la región de nube AWS México (Central) que impulsa el internet moderno.",
   },
   {
     id: "medellin",
@@ -82,10 +92,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of Ruta N Innovation District — I lived in Medellín and worked in various cafés and coworking places among worldwide digital nomads and locals.",
+      description_es: "Hogar del Distrito de Innovación Ruta N — Viví en Medellín y trabajé en varios cafés y espacios de coworking entre nómadas digitales de todo el mundo y locales.",
       emoji: "🌸",
       url: "https://rutanmedellin.org/en/",
     },
     funFact: "Once defined by a troubled past, Medellín has reinvented itself as the 'Silicon Valley of South America.' In 2024, Google Cloud opened an office in El Poblado, and Ruta N partnered with Google Cloud to train 5,000 residents in cloud computing.",
+    funFact_es: "Una vez definida por un pasado difícil, Medellín se ha reinventado como el 'Silicon Valley de Sudamérica.' En 2024, Google Cloud abrió una oficina en El Poblado, y Ruta N se asoció con Google Cloud para capacitar a 5,000 residentes en computación en la nube.",
   },
   {
     id: "new-york",
@@ -96,10 +108,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of 60 Hudson Street — The Internet's Nerve Center. The cloud's most connected address on the East Coast. Built in 1930 as Western Union's telegraph HQ, it went from routing telegrams to routing the internet.",
+      description_es: "Hogar de 60 Hudson Street — El Centro Nervioso del Internet. La dirección más conectada de la nube en la Costa Este. Construido en 1930 como sede de telégrafos de Western Union, pasó de enrutar telegramas a enrutar el internet.",
       emoji: "🗽",
       url: "https://www.60hudson.com/",
     },
     funFact: "Built in 1930 as Western Union's telegraph HQ, 60 Hudson Street in Lower Manhattan went from routing telegrams to routing the internet. Today it's one of the most connected buildings on Earth where dozens of fiber networks converge to carry data between North America and the world.",
+    funFact_es: "Construido en 1930 como sede de telégrafos de Western Union, 60 Hudson Street en el bajo Manhattan pasó de enrutar telegramas a enrutar el internet. Hoy es uno de los edificios más conectados del mundo donde decenas de redes de fibra convergen para transportar datos entre Norteamérica y el mundo.",
   },
   {
     id: "miami",
@@ -110,10 +124,12 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of NAP of the Americas (Equinix MI1) — my former city is where North America and Latin America unite. A single building in downtown Miami routes internet traffic between the U.S. and 150+ countries.",
+      description_es: "Hogar del NAP de las Américas (Equinix MI1) — mi antigua ciudad es donde Norteamérica y Latinoamérica se unen. Un solo edificio en el centro de Miami enruta tráfico de internet entre EE.UU. y más de 150 países.",
       emoji: "🌴",
       url: "https://www.equinix.com/data-centers/americas-colocation/united-states-colocation/miami-data-centers",
     },
     funFact: "A single building in downtown Miami routes internet traffic between the U.S. and 150+ countries. Miami isn't just the cultural capital of Latin America, it's the cloud capital too.",
+    funFact_es: "Un solo edificio en el centro de Miami enruta tráfico de internet entre EE.UU. y más de 150 países. Miami no es solo la capital cultural de Latinoamérica, también es la capital de la nube.",
   },
   {
     id: "sarasota",
@@ -124,9 +140,11 @@ export const cities: City[] = [
     connection: {
       type: "story",
       description: "Home of Sarasota.Tech Community — my current city is where my 100-day reinvention is being built.",
+      description_es: "Hogar de la Comunidad Sarasota.Tech — mi ciudad actual es donde se está construyendo mi reinvención de 100 días.",
       emoji: "🚀",
       url: "https://sarasota.tech/",
     },
     funFact: "Don't sleep on Sarasota. With no marketing budget and just word of mouth, Sarasota.Tech grew from a few friends to 3,000+ tech professionals in two years. Sarasota is rising.",
+    funFact_es: "No subestimes a Sarasota. Sin presupuesto de marketing y solo de boca en boca, Sarasota.Tech creció de unos pocos amigos a más de 3,000 profesionales de tecnología en dos años. Sarasota está en ascenso.",
   },
 ];
