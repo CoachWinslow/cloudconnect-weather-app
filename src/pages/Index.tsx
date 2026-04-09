@@ -87,7 +87,7 @@ const Index = () => {
 
       <footer className="border-t border-border py-4 text-center mt-10">
         <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-          M3 CloudConnect — Mission Control Interface — Built with Lovable
+          M² Cloud Connect — Mission Control Interface — Built with Lovable
         </p>
       </footer>
     </div>
