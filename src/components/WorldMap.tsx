@@ -77,8 +77,8 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       const marker = L.marker([city.lat, city.lng], {
         icon: L.divIcon({
           className: "city-marker pulse",
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
         }),
       }).addTo(map);
 
