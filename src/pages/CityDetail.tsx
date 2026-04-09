@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { cities } from "@/data/cities";
-import { useCityWeather, useCityForecast } from "@/hooks/useWeatherData";
+import { useCityWeather, useCityForecast, useHourlyForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
-import { ArrowLeft, Droplets, Wind, Thermometer, User, BookOpen, Lightbulb, MapPin, Activity } from "lucide-react";
+import { ArrowLeft, Droplets, Wind, Thermometer, CloudSun, Lightbulb, MapPin, Activity, Clock } from "lucide-react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
@@ -30,8 +30,24 @@ export default function CityDetail() {
 
   const { data: weather, isLoading: weatherLoading } = useCityWeather(city.lat, city.lng);
   const { data: forecast, isLoading: forecastLoading } = useCityForecast(city.lat, city.lng);
+  const { data: hourly, isLoading: hourlyLoading } = useHourlyForecast(city.lat, city.lng);
 
   const dayLocale = language === "es" ? "es-CO" : "en-US";
+
+  // Generate a live weather summary sentence
+  const getWeatherSummary = () => {
+    if (!weather || !forecast) return null;
+    const todayForecast = forecast[0];
+    const tomorrowForecast = forecast[1];
+    let summary = `Currently ${weather.description} at ${formatTemp(weather.temp)}, feeling like ${formatTemp(weather.feelsLike)}.`;
+    if (todayForecast) {
+      summary += ` Today's high near ${formatTemp(todayForecast.tempMax)} with a low of ${formatTemp(todayForecast.tempMin)}.`;
+    }
+    if (tomorrowForecast) {
+      summary += ` Tomorrow expect ${tomorrowForecast.description}.`;
+    }
+    return summary;
+  };
 
   return (
     <div className="min-h-screen bg-background grid-bg">
