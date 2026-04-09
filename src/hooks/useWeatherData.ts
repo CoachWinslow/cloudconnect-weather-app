@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { cities } from "@/data/cities";
+import { useCities } from "@/hooks/useCities";
 import { fetchCurrentWeather, fetchForecast, fetchHourlyForecast, WeatherData, ForecastDay, HourlyForecast } from "@/services/weatherService";
 
 export function useAllCitiesWeather(lang: string = "en") {
+  const { data: cities } = useCities();
   return useQuery({
-    queryKey: ["all-cities-weather", lang],
+    queryKey: ["all-cities-weather", lang, cities?.map(c => c.id).join(",")],
     queryFn: async () => {
+      if (!cities) return {};
       const results: Record<string, { temp: number; icon: string; description: string }> = {};
       
       const promises = cities.map(async (city, i) => {
@@ -21,6 +23,7 @@ export function useAllCitiesWeather(lang: string = "en") {
       await Promise.all(promises);
       return results;
     },
+    enabled: !!cities && cities.length > 0,
     staleTime: 10 * 60 * 1000,
     refetchInterval: 15 * 60 * 1000,
   });

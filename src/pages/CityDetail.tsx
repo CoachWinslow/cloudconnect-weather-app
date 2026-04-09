@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { cities } from "@/data/cities";
+import { useCities } from "@/hooks/useCities";
 import { useCityWeather, useCityForecast, useHourlyForecast } from "@/hooks/useWeatherData";
 import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
@@ -12,7 +12,20 @@ export default function CityDetail() {
   const { cityId } = useParams();
   const navigate = useNavigate();
   const { formatTemp, convertWindSpeed, language } = useSettings();
-  const city = cities.find((c) => c.id === cityId);
+  const { data: cities, isLoading: citiesLoading } = useCities();
+  const city = cities?.find((c) => c.id === cityId);
+
+  if (citiesLoading) {
+    return (
+      <div className="min-h-screen bg-background grid-bg">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <Activity className="w-5 h-5 animate-pulse text-primary mr-2" />
+          <span className="font-mono text-sm text-muted-foreground">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!city) {
     return (
@@ -60,7 +73,6 @@ export default function CityDetail() {
       <Header />
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        {/* Back */}
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 font-mono text-xs uppercase tracking-wider"
@@ -164,7 +176,6 @@ export default function CityDetail() {
                   <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                     {getWeatherSummary()}
                   </p>
-                  {/* Next hours */}
                   <div className="flex items-center gap-1.5 mb-2">
                     <Clock className="w-3 h-3 text-primary/70" />
                     <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">{t(language, "nextHours")}</span>
