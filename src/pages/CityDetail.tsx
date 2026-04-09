@@ -147,7 +147,7 @@ export default function CityDetail() {
                   </div>
                 )}
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  {city.connection.description}
+                  {language === "es" && city.connection.description_es ? city.connection.description_es : city.connection.description}
                 </p>
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function CityDetail() {
               <h4 className="font-mono font-semibold text-accent text-[10px] uppercase tracking-wider mb-1">
                 {t(language, "intelReport")}
               </h4>
-              <p className="text-muted-foreground text-sm">{city.funFact}</p>
+              <p className="text-muted-foreground text-sm">{language === "es" && city.funFact_es ? city.funFact_es : city.funFact}</p>
             </div>
           </div>
         </div>
