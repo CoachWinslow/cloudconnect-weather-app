@@ -237,7 +237,7 @@ export default function CityDetail() {
           </div>
         </div>
 
-        {/* Fun Fact */}
+        {/* Intel Report */}
         <div className="glow-border-accent hud-corners rounded-md p-4 mt-4 animate-fade-in bg-accent/5 relative overflow-hidden" style={{ animationDelay: "400ms" }}>
           <div className="relative z-10 flex items-start gap-3">
             <Lightbulb className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -245,7 +245,21 @@ export default function CityDetail() {
               <h4 className="font-mono font-semibold text-accent text-[10px] uppercase tracking-wider mb-1">
                 {t(language, "intelReport")}
               </h4>
-              <p className="text-muted-foreground text-sm">{language === "es" && city.funFact_es ? city.funFact_es : city.funFact}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {language === "es" && city.connection.description_es
+                  ? city.connection.description_es
+                  : city.connection.description}
+              </p>
+              {city.connection.url && (
+                <a
+                  href={city.connection.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-3 font-mono text-[10px] text-primary hover:text-primary/80 uppercase tracking-wider transition-colors"
+                >
+                  {t(language, "learnMore")} →
+                </a>
+              )}
             </div>
           </div>
         </div>
