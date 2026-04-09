@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import WorldMap from "@/components/WorldMap";
 import CityCard from "@/components/CityCard";
+import CitySearch from "@/components/CitySearch";
 import { cities } from "@/data/cities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
 import { Radar, Database, Globe } from "lucide-react";
@@ -33,6 +34,9 @@ const Index = () => {
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
             {t(language, "indexSubtitle")}
           </p>
+          <div className="mt-4">
+            <CitySearch />
+          </div>
         </div>
 
         {/* Status Bar */}
