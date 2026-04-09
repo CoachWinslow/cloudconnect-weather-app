@@ -1,0 +1,1 @@
+UPDATE cities SET connection_url = 'https://www.hijamiacoffee.com,https://www.semilla.com.co,https://tinkko.com/sede/milla-de-oro' WHERE id = 'medellin';
