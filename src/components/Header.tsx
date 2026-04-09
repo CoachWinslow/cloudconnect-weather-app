@@ -1,8 +1,11 @@
-import { Satellite, Activity, Radio } from "lucide-react";
+import { Satellite, Activity, Radio, Globe, Thermometer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "@/contexts/SettingsContext";
+import { t } from "@/i18n/translations";
 
 export default function Header() {
   const navigate = useNavigate();
+  const { tempUnit, language, toggleTempUnit, toggleLanguage } = useSettings();
 
   return (
     <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
@@ -20,18 +23,46 @@ export default function Header() {
               M² Cloud Connect
             </h1>
             <p className="font-mono text-[9px] text-primary/70 uppercase tracking-[0.2em]">
-              Infrastructure Monitor v2.0
+              {t(language, "infrastructureMonitor")}
             </p>
           </div>
         </button>
-        <div className="flex items-center gap-4">
+
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Settings toggles */}
+          <div className="flex items-center gap-1.5">
+            {/* Temp toggle */}
+            <button
+              onClick={toggleTempUnit}
+              className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
+              title={tempUnit === "F" ? "Switch to Celsius" : "Switch to Fahrenheit"}
+            >
+              <Thermometer className="w-3 h-3 text-primary" />
+              <span className="font-mono text-[10px] font-semibold text-foreground uppercase">
+                {tempUnit === "F" ? "°F" : "°C"}
+              </span>
+            </button>
+
+            {/* Language toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
+              title={language === "en" ? "Cambiar a Español" : "Switch to English"}
+            >
+              <Globe className="w-3 h-3 text-primary" />
+              <span className="font-mono text-[10px] font-semibold text-foreground uppercase">
+                {language === "en" ? "EN" : "ES"}
+              </span>
+            </button>
+          </div>
+
           <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
             <Activity className="w-3 h-3 text-primary telemetry-pulse" />
-            <span className="font-mono text-[10px] uppercase tracking-wider">Systems Online</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider">{t(language, "systemsOnline")}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-primary/10 border border-primary/20">
             <Radio className="w-3 h-3 text-primary status-online" />
-            <span className="font-mono text-[10px] text-primary uppercase tracking-wider">Live</span>
+            <span className="font-mono text-[10px] text-primary uppercase tracking-wider">{t(language, "live")}</span>
           </div>
         </div>
       </div>

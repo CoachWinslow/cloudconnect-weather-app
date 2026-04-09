@@ -3,6 +3,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { cities } from "@/data/cities";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface WorldMapProps {
   weatherData: Record<string, { temp: number; icon: string } | undefined>;
@@ -12,6 +13,7 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const navigate = useNavigate();
+  const { formatTemp } = useSettings();
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -25,7 +27,6 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
       scrollWheelZoom: true,
     });
 
-    // Dark tile layer for command center aesthetic
     const darkLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
@@ -66,7 +67,7 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
         const tempHtml = w
           ? `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
               <img src="https://openweathermap.org/img/wn/${w.icon}.png" width="28" height="28" />
-              <span style="font-size:18px;font-weight:700;font-family:JetBrains Mono,monospace;color:hsl(170,100%,45%);">${w.temp}°F</span>
+              <span style="font-size:18px;font-weight:700;font-family:JetBrains Mono,monospace;color:hsl(170,100%,45%);">${formatTemp(w.temp)}</span>
             </div>`
           : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
@@ -92,11 +93,7 @@ export default function WorldMap({ weatherData }: WorldMapProps) {
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [navigate, weatherData]);
-
-  useEffect(() => {
-    if (!mapInstanceRef.current) return;
-  }, [weatherData]);
+  }, [navigate, weatherData, formatTemp]);
 
   return (
     <div
