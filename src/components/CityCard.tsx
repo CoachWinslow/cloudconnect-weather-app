@@ -46,7 +46,7 @@ export default function CityCard({ city, weather, index }: CityCardProps) {
           <p className="text-[11px] text-muted-foreground line-clamp-2 ml-3.5 leading-relaxed">
             {city.connection.type === "person"
               ? city.connection.tagline
-              : city.connection.description.slice(0, 80) + "..."}
+              : ((language === "es" && city.connection.description_es) ? city.connection.description_es : city.connection.description).slice(0, 80) + "..."}
           </p>
         </div>
 
