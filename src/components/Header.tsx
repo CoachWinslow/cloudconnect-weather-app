@@ -1,11 +1,13 @@
-import { Satellite, Activity, Radio, Globe, Thermometer } from "lucide-react";
+import { Satellite, Activity, Radio, Globe, Thermometer, User, Heart, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/i18n/translations";
 
 export default function Header() {
   const navigate = useNavigate();
   const { tempUnit, language, toggleTempUnit, toggleLanguage } = useSettings();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
@@ -31,7 +33,6 @@ export default function Header() {
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Settings toggles */}
           <div className="flex items-center gap-1.5">
-            {/* Temp toggle */}
             <button
               onClick={toggleTempUnit}
               className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
@@ -43,7 +44,6 @@ export default function Header() {
               </span>
             </button>
 
-            {/* Language toggle */}
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
@@ -54,6 +54,39 @@ export default function Header() {
                 {language === "en" ? "EN" : "ES"}
               </span>
             </button>
+          </div>
+
+          {/* Auth / Favorites */}
+          <div className="flex items-center gap-1.5">
+            {user && (
+              <button
+                onClick={() => navigate("/favorites")}
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
+                title={language === "es" ? "Favoritos" : "Favorites"}
+              >
+                <Heart className="w-3 h-3 text-red-400" />
+              </button>
+            )}
+            {user ? (
+              <button
+                onClick={() => signOut()}
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
+                title={language === "es" ? "Cerrar sesión" : "Sign out"}
+              >
+                <LogOut className="w-3 h-3 text-primary" />
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/auth")}
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border hover:border-primary/40 transition-colors bg-secondary/50"
+                title={language === "es" ? "Iniciar sesión" : "Sign in"}
+              >
+                <User className="w-3 h-3 text-primary" />
+                <span className="font-mono text-[10px] font-semibold text-foreground uppercase hidden sm:inline">
+                  {language === "es" ? "Entrar" : "Sign In"}
+                </span>
+              </button>
+            )}
           </div>
 
           <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
