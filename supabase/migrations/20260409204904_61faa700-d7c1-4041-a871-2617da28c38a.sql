@@ -1,0 +1,1 @@
+UPDATE cities SET connection_url = 'https://labsrq.com,https://sarasota.tech' WHERE id = 'sarasota';
