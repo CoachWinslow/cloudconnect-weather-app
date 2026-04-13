@@ -8,12 +8,13 @@ import { Satellite, Mail, Lock, ArrowLeft } from "lucide-react";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const { language } = useSettings();
   const navigate = useNavigate();
 
@@ -23,7 +24,11 @@ export default function Auth() {
     setSuccess("");
     setLoading(true);
 
-    if (isSignUp) {
+    if (isForgot) {
+      const { error: err } = await resetPassword(email);
+      if (err) setError(err.message);
+      else setSuccess(language === "es" ? "¡Revisa tu correo para restablecer tu contraseña!" : "Check your email for a password reset link!");
+    } else if (isSignUp) {
       const { error: err } = await signUp(email, password);
       if (err) setError(err.message);
       else setSuccess(language === "es" ? "¡Revisa tu correo para confirmar!" : "Check your email to confirm!");
@@ -33,6 +38,13 @@ export default function Auth() {
       else navigate("/");
     }
     setLoading(false);
+  };
+
+  const switchMode = (mode: "signin" | "signup" | "forgot") => {
+    setError("");
+    setSuccess("");
+    setIsSignUp(mode === "signup");
+    setIsForgot(mode === "forgot");
   };
 
   return (
@@ -56,12 +68,16 @@ export default function Auth() {
               </div>
             </div>
             <h2 className="font-display text-xl font-bold text-foreground text-center mb-1">
-              {isSignUp
-                ? (language === "es" ? "Crear Cuenta" : "Create Account")
-                : (language === "es" ? "Iniciar Sesión" : "Sign In")}
+              {isForgot
+                ? (language === "es" ? "Restablecer Contraseña" : "Reset Password")
+                : isSignUp
+                  ? (language === "es" ? "Crear Cuenta" : "Create Account")
+                  : (language === "es" ? "Iniciar Sesión" : "Sign In")}
             </h2>
             <p className="text-muted-foreground text-xs text-center mb-6 font-mono">
-              {language === "es" ? "Accede a favoritos y notas personales" : "Access your favorites and personal notes"}
+              {isForgot
+                ? (language === "es" ? "Te enviaremos un enlace de restablecimiento" : "We'll send you a reset link")
+                : (language === "es" ? "Accede a favoritos y notas personales" : "Access your favorites and personal notes")}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,18 +92,20 @@ export default function Auth() {
                   className="w-full h-10 pl-10 pr-3 rounded-sm bg-secondary/50 border border-border font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/60" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={language === "es" ? "Contraseña" : "Password"}
-                  required
-                  minLength={6}
-                  className="w-full h-10 pl-10 pr-3 rounded-sm bg-secondary/50 border border-border font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                />
-              </div>
+              {!isForgot && (
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/60" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={language === "es" ? "Contraseña" : "Password"}
+                    required
+                    minLength={6}
+                    className="w-full h-10 pl-10 pr-3 rounded-sm bg-secondary/50 border border-border font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                  />
+                </div>
+              )}
 
               {error && (
                 <p className="text-destructive text-xs font-mono text-center">{error}</p>
@@ -103,19 +121,32 @@ export default function Auth() {
               >
                 {loading
                   ? "..."
-                  : isSignUp
-                    ? (language === "es" ? "Registrarse" : "Sign Up")
-                    : (language === "es" ? "Entrar" : "Sign In")}
+                  : isForgot
+                    ? (language === "es" ? "Enviar Enlace" : "Send Reset Link")
+                    : isSignUp
+                      ? (language === "es" ? "Registrarse" : "Sign Up")
+                      : (language === "es" ? "Entrar" : "Sign In")}
               </button>
             </form>
 
+            {!isSignUp && !isForgot && (
+              <button
+                onClick={() => switchMode("forgot")}
+                className="w-full mt-3 text-center text-[10px] text-primary/60 hover:text-primary font-mono transition-colors uppercase tracking-wider"
+              >
+                {language === "es" ? "¿Olvidaste tu contraseña?" : "Forgot password?"}
+              </button>
+            )}
+
             <button
-              onClick={() => { setIsSignUp(!isSignUp); setError(""); setSuccess(""); }}
-              className="w-full mt-4 text-center text-xs text-muted-foreground hover:text-primary font-mono transition-colors"
+              onClick={() => switchMode(isForgot ? "signin" : isSignUp ? "signin" : "signup")}
+              className="w-full mt-3 text-center text-xs text-muted-foreground hover:text-primary font-mono transition-colors"
             >
-              {isSignUp
-                ? (language === "es" ? "¿Ya tienes cuenta? Inicia sesión" : "Already have an account? Sign in")
-                : (language === "es" ? "¿No tienes cuenta? Regístrate" : "Don't have an account? Sign up")}
+              {isForgot
+                ? (language === "es" ? "Volver a iniciar sesión" : "Back to sign in")
+                : isSignUp
+                  ? (language === "es" ? "¿Ya tienes cuenta? Inicia sesión" : "Already have an account? Sign in")
+                  : (language === "es" ? "¿No tienes cuenta? Regístrate" : "Don't have an account? Sign up")}
             </button>
           </div>
         </div>
