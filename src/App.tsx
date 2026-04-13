@@ -11,6 +11,7 @@ import SearchCityDetail from "./pages/SearchCityDetail";
 import Auth from "./pages/Auth";
 import Favorites from "./pages/Favorites";
 import Admin from "./pages/Admin";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/city/:cityId" element={<CityDetail />} />
               <Route path="/search" element={<SearchCityDetail />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
