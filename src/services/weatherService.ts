@@ -1,5 +1,4 @@
-const API_KEY = "92ed533f602c951a9bbec48031f9325a";
-const BASE_URL = "https://api.openweathermap.org/data/2.5";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface WeatherData {
   temp: number;
@@ -24,18 +23,23 @@ export interface ForecastDay {
 }
 
 export interface HourlyForecast {
-  time: string; // e.g. "3 PM"
+  time: string;
   temp: number;
   icon: string;
   description: string;
 }
 
+async function callWeatherProxy(endpoint: string, params: Record<string, string | number>) {
+  const { data, error } = await supabase.functions.invoke("weather-proxy", {
+    body: { endpoint, params },
+  });
+  if (error) throw new Error(error.message || "Weather proxy error");
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
 export async function fetchCurrentWeather(lat: number, lng: number, lang: string = "en"): Promise<WeatherData> {
-  const res = await fetch(
-    `${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
-  );
-  if (!res.ok) throw new Error("Failed to fetch weather");
-  const data = await res.json();
+  const data = await callWeatherProxy("weather", { lat, lon: lng, units: "imperial", lang });
   return {
     temp: Math.round(data.main.temp),
     feelsLike: Math.round(data.main.feels_like),
@@ -50,11 +54,7 @@ export async function fetchCurrentWeather(lat: number, lng: number, lang: string
 }
 
 export async function fetchForecast(lat: number, lng: number, lang: string = "en"): Promise<ForecastDay[]> {
-  const res = await fetch(
-    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
-  );
-  if (!res.ok) throw new Error("Failed to fetch forecast");
-  const data = await res.json();
+  const data = await callWeatherProxy("forecast", { lat, lon: lng, units: "imperial", lang });
 
   const days = new Map<string, ForecastDay>();
 
@@ -82,11 +82,7 @@ export async function fetchForecast(lat: number, lng: number, lang: string = "en
 }
 
 export async function fetchHourlyForecast(lat: number, lng: number, lang: string = "en"): Promise<HourlyForecast[]> {
-  const res = await fetch(
-    `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=imperial&lang=${lang}`
-  );
-  if (!res.ok) throw new Error("Failed to fetch hourly forecast");
-  const data = await res.json();
+  const data = await callWeatherProxy("forecast", { lat, lon: lng, units: "imperial", lang });
 
   return data.list.slice(0, 4).map((item: any) => {
     const d = new Date(item.dt * 1000);
