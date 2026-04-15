@@ -13,7 +13,7 @@ export default function Header() {
 
   return (
     <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity group"
@@ -31,10 +31,6 @@ export default function Header() {
             </p>
           </div>
         </button>
-
-        <p className="hidden md:block absolute left-1/2 -translate-x-1/2 font-display text-xl italic text-primary/50 tracking-wide pointer-events-none">
-          Enveniam Viam
-        </p>
 
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Settings toggles */}
