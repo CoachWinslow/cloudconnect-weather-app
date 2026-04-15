@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import type { City } from "@/data/cities";
-import { isImageEmoji } from "@/components/CityEmoji";
+
 
 interface WorldMapProps {
   cities: City[];
