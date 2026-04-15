@@ -1,12 +1,15 @@
+import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import WorldMap from "@/components/WorldMap";
 import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
+import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const Index = () => {
   const { language } = useSettings();
