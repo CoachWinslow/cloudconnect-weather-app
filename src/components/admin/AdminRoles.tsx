@@ -41,6 +41,18 @@ export default function AdminRoles() {
     },
   });
 
+  const { data: allProfiles, isLoading: profilesLoading } = useQuery({
+    queryKey: ["admin-all-profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, created_at")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const handleAssign = async () => {
     if (!email.trim()) {
       toast.error("Enter an email address");
