@@ -16,6 +16,18 @@ const Index = () => {
   const apiLang = language === "es" ? "es" : "en";
   const { data: cities, isLoading: citiesLoading } = useCities();
   const { data: weatherData } = useAllCitiesWeather(apiLang);
+  const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
+    'north-america': true,
+    'central-south-america': true,
+    'europe': true,
+    'middle-east-africa': true,
+    'asia-pacific': true,
+  });
+
+  const regionGroups = useMemo(() => {
+    if (!cities) return [];
+    return groupCitiesByRegion(cities);
+  }, [cities]);
 
   const onlineCount = weatherData ? Object.keys(weatherData).length : 0;
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
