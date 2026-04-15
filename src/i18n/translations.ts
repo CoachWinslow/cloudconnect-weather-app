@@ -47,7 +47,7 @@ const translations = {
     learnMore: "Learn More",
 
     // Footer
-    footer: "M² Cloud Connect — Mission Control Interface — Built with Lovable",
+    footer: "Cloud Connect — Mission Control Interface — Built with Lovable",
 
     // Toggles
     fahrenheit: "°F",
@@ -103,7 +103,7 @@ const translations = {
     learnMore: "Más Información",
 
     // Footer
-    footer: "M² Cloud Connect — Interfaz de Control de Misión — Hecho con Lovable",
+    footer: "Cloud Connect — Interfaz de Control de Misión — Hecho con Lovable",
 
     // Toggles
     fahrenheit: "°F",
