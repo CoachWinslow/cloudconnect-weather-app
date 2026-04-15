@@ -99,7 +99,7 @@ const Index = () => {
           <WorldMap cities={cities} weatherData={weatherData || {}} />
         </div>
 
-        {/* City Cards */}
+        {/* City Cards by Region */}
         <div className="flex items-center gap-3 mb-4">
           <h3 className="font-display text-base font-semibold text-foreground uppercase tracking-wider">
             {t(language, "monitoredLocations")}
@@ -109,14 +109,41 @@ const Index = () => {
             {cities.length} {t(language, "stations")}
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {cities.map((city, i) => (
-            <CityCard
-              key={city.id}
-              city={city}
-              weather={weatherData?.[city.id]}
-              index={i}
-            />
+
+        <div className="space-y-4">
+          {regionGroups.map((group) => (
+            <Collapsible
+              key={group.key}
+              open={openRegions[group.key]}
+              onOpenChange={(open) =>
+                setOpenRegions((prev) => ({ ...prev, [group.key]: open }))
+              }
+            >
+              <CollapsibleTrigger className="w-full group">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-sm bg-card border border-border hover:border-primary/30 transition-colors cursor-pointer">
+                  <ChevronDown className={`w-4 h-4 text-primary transition-transform duration-200 ${openRegions[group.key] ? '' : '-rotate-90'}`} />
+                  <span className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
+                    {language === 'es' ? group.labelEs : group.label}
+                  </span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    {group.cities.length} {group.cities.length === 1 ? 'station' : 'stations'}
+                  </span>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                  {group.cities.map((city, i) => (
+                    <CityCard
+                      key={city.id}
+                      city={city}
+                      weather={weatherData?.[city.id]}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
         </div>
       </div>
