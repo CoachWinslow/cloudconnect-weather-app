@@ -32,10 +32,6 @@ export default function Header() {
           </div>
         </button>
 
-        <p className="hidden md:block absolute left-1/2 -translate-x-1/2 font-display text-xl italic text-primary/50 tracking-wide pointer-events-none">
-          Enveniam Viam
-        </p>
-
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Settings toggles */}
           <div className="flex items-center gap-1.5">
