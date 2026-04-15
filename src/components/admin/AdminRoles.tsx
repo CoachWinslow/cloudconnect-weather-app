@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, UserPlus, Trash2, Activity, Shield, Pencil, Eye } from "lucide-react";
+import { Search, UserPlus, Trash2, Activity, Shield, Pencil, Eye, Users } from "lucide-react";
 import { toast } from "sonner";
 import type { AppRole } from "@/hooks/useUserRole";
 
@@ -38,6 +38,18 @@ export default function AdminRoles() {
         ...r,
         display_name: profileMap.get(r.user_id) || r.user_id,
       }));
+    },
+  });
+
+  const { data: allProfiles, isLoading: profilesLoading } = useQuery({
+    queryKey: ["admin-all-profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, created_at")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -179,6 +191,55 @@ export default function AdminRoles() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Registered Users */}
+      <h4 className="font-display font-semibold text-sm text-foreground mb-3 mt-8 uppercase tracking-wider flex items-center gap-2">
+        <Users className="w-4 h-4 text-primary" /> Registered Users
+      </h4>
+      {profilesLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Activity className="w-5 h-5 animate-pulse text-primary mr-2" />
+          <span className="font-mono text-sm text-muted-foreground">Loading users...</span>
+        </div>
+      ) : !allProfiles?.length ? (
+        <p className="font-mono text-xs text-muted-foreground text-center py-8">No registered users.</p>
+      ) : (
+        <div className="space-y-2">
+          {allProfiles.map((profile) => {
+            const userRole = roles?.find((r) => r.user_id === profile.user_id);
+            return (
+              <div key={profile.user_id} className="glow-border rounded-md bg-card p-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-2 h-2 rounded-full ${userRole ? "bg-primary status-online" : "bg-muted-foreground/30"}`} />
+                  <div className="min-w-0">
+                    <div className="font-mono text-xs text-foreground truncate">{profile.display_name || profile.user_id}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">
+                      Joined {new Date(profile.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </div>
+                  </div>
+                  {userRole ? (
+                    <span className={`px-2 py-0.5 rounded-sm border font-mono text-[10px] uppercase ${roleBadgeClass(userRole.role)}`}>
+                      {userRole.role}
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-sm border border-border/50 font-mono text-[10px] uppercase text-muted-foreground/50">
+                      No Role
+                    </span>
+                  )}
+                </div>
+                {!userRole && (
+                  <button
+                    onClick={() => setEmail(profile.display_name || "")}
+                    className="px-2 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-primary border border-primary/30 hover:bg-primary/10 transition-colors"
+                  >
+                    Assign
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
