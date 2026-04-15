@@ -73,14 +73,7 @@ export default function CityDetail() {
     <div className="min-h-screen bg-background grid-bg">
       <Header />
 
-      {/* Motto */}
-      <div className="container mx-auto px-4 max-w-4xl pt-6 pb-2 text-center animate-fade-in">
-        <p className="font-display text-2xl md:text-4xl italic text-primary/70 tracking-wide text-glow">
-          Enveniam Viam
-        </p>
-      </div>
-
-      <div className="container mx-auto px-4 py-4 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 font-mono text-xs uppercase tracking-wider"

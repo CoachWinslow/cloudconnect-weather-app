@@ -30,6 +30,9 @@ export default function Header() {
               {t(language, "infrastructureMonitor")}
             </p>
           </div>
+          <p className="hidden md:block font-display text-lg italic text-primary/50 ml-4 tracking-wide">
+            Enveniam Viam
+          </p>
         </button>
 
         <div className="flex items-center gap-2 sm:gap-4">
