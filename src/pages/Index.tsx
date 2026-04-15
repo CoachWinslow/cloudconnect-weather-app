@@ -1,18 +1,33 @@
+import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import WorldMap from "@/components/WorldMap";
 import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
+import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const Index = () => {
   const { language } = useSettings();
   const apiLang = language === "es" ? "es" : "en";
   const { data: cities, isLoading: citiesLoading } = useCities();
   const { data: weatherData } = useAllCitiesWeather(apiLang);
+  const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
+    'north-america': true,
+    'central-south-america': true,
+    'europe': true,
+    'middle-east-africa': true,
+    'asia-pacific': true,
+  });
+
+  const regionGroups = useMemo(() => {
+    if (!cities) return [];
+    return groupCitiesByRegion(cities);
+  }, [cities]);
 
   const onlineCount = weatherData ? Object.keys(weatherData).length : 0;
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
@@ -84,7 +99,7 @@ const Index = () => {
           <WorldMap cities={cities} weatherData={weatherData || {}} />
         </div>
 
-        {/* City Cards */}
+        {/* City Cards by Region */}
         <div className="flex items-center gap-3 mb-4">
           <h3 className="font-display text-base font-semibold text-foreground uppercase tracking-wider">
             {t(language, "monitoredLocations")}
@@ -94,14 +109,41 @@ const Index = () => {
             {cities.length} {t(language, "stations")}
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {cities.map((city, i) => (
-            <CityCard
-              key={city.id}
-              city={city}
-              weather={weatherData?.[city.id]}
-              index={i}
-            />
+
+        <div className="space-y-4">
+          {regionGroups.map((group) => (
+            <Collapsible
+              key={group.key}
+              open={openRegions[group.key]}
+              onOpenChange={(open) =>
+                setOpenRegions((prev) => ({ ...prev, [group.key]: open }))
+              }
+            >
+              <CollapsibleTrigger className="w-full group">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-sm bg-card border border-border hover:border-primary/30 transition-colors cursor-pointer">
+                  <ChevronDown className={`w-4 h-4 text-primary transition-transform duration-200 ${openRegions[group.key] ? '' : '-rotate-90'}`} />
+                  <span className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
+                    {language === 'es' ? group.labelEs : group.label}
+                  </span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    {group.cities.length} {group.cities.length === 1 ? 'station' : 'stations'}
+                  </span>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                  {group.cities.map((city, i) => (
+                    <CityCard
+                      key={city.id}
+                      city={city}
+                      weather={weatherData?.[city.id]}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
         </div>
       </div>
