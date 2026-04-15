@@ -1,4 +1,4 @@
-const API_KEY = "92ed533f602c951a9bbec48031f9325a";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface GeocodingResult {
   name: string;
@@ -10,11 +10,16 @@ export interface GeocodingResult {
 
 export async function searchCities(query: string): Promise<GeocodingResult[]> {
   if (!query || query.length < 2) return [];
-  const res = await fetch(
-    `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
+
+  const { data, error } = await supabase.functions.invoke("weather-proxy", {
+    body: {
+      endpoint: "geo/1.0/direct",
+      params: { q: query, limit: 5 },
+    },
+  });
+
+  if (error || data?.error) return [];
+
   return data.map((item: any) => ({
     name: item.name,
     country: item.country,
