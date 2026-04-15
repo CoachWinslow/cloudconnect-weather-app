@@ -82,15 +82,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     });
 
     cities.forEach((city) => {
-      let cityIcon = markerIcon;
-      if (isImageEmoji(city.connection.emoji)) {
-        cityIcon = L.icon({
-          iconUrl: city.connection.emoji,
-          iconSize: [36, 36],
-          iconAnchor: [18, 18],
-          className: "city-custom-logo",
-        });
-      }
+      const cityIcon = markerIcon;
 
       const marker = L.marker([city.lat, city.lng], {
         icon: cityIcon,
