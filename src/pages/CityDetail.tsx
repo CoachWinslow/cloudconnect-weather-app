@@ -5,6 +5,7 @@ import { getWeatherIconUrl } from "@/services/weatherService";
 import Header from "@/components/Header";
 import { ArrowLeft, Droplets, Wind, Thermometer, CloudSun, Lightbulb, MapPin, Activity, Clock } from "lucide-react";
 import FavoriteButton from "@/components/FavoriteButton";
+import CityEmoji from "@/components/CityEmoji";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 
@@ -90,7 +91,7 @@ export default function CityDetail() {
               <span className="font-mono text-[10px] text-primary uppercase tracking-wider">{t(language, "stationActive")}</span>
             </div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="text-3xl">{city.connection.emoji}</span>
+              <CityEmoji emoji={city.connection.emoji} name={city.name} className="text-3xl" size={36} />
               <div>
                 <div className="flex items-center gap-3">
                   <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">
