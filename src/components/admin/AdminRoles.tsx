@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, UserPlus, Trash2, Activity, Shield, Pencil, Eye } from "lucide-react";
+import { Search, UserPlus, Trash2, Activity, Shield, Pencil, Eye, Users } from "lucide-react";
 import { toast } from "sonner";
 import type { AppRole } from "@/hooks/useUserRole";
 
