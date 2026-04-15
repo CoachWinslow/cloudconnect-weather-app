@@ -1,7 +1,7 @@
 const translations = {
   en: {
     // Header
-    infrastructureMonitor: "Infrastructure Monitor v2.0",
+    infrastructureMonitor: "Infrastructure Monitor v1.4",
     systemsOnline: "Systems Online",
     live: "Live",
 
@@ -57,7 +57,7 @@ const translations = {
   },
   es: {
     // Header
-    infrastructureMonitor: "Monitor de Infraestructura v2.0",
+    infrastructureMonitor: "Monitor de Infraestructura v1.4",
     systemsOnline: "Sistemas en Línea",
     live: "En Vivo",
 
