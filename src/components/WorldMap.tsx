@@ -100,7 +100,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           </div>`
         : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
-      const emojiHtml = isImageEmoji(city.connection.emoji)
+      const emojiHtml = (city.connection.emoji.startsWith("/assets/") || city.connection.emoji.startsWith("http"))
         ? `<img src="${city.connection.emoji}" width="20" height="20" style="display:inline-block;vertical-align:middle;margin-right:4px;" />`
         : city.connection.emoji;
 
