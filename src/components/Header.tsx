@@ -13,7 +13,7 @@ export default function Header() {
 
   return (
     <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity group"
