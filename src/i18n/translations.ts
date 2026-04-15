@@ -57,7 +57,7 @@ const translations = {
   },
   es: {
     // Header
-    infrastructureMonitor: "Monitor de Infraestructura v2.0",
+    infrastructureMonitor: "Monitor de Infraestructura v1.4",
     systemsOnline: "Sistemas en Línea",
     live: "En Vivo",
 
