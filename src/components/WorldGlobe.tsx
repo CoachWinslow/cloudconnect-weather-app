@@ -83,6 +83,14 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
     g.pointOfView(DEFAULT_POV, 900);
   };
 
+  const handleZoom = (factor: number) => {
+    const g = globeRef.current;
+    if (!g) return;
+    const pov = g.pointOfView();
+    const next = Math.min(4, Math.max(0.5, (pov.altitude ?? 1.8) * factor));
+    g.pointOfView({ altitude: next }, 350);
+  };
+
   const points = useMemo(
     () =>
       cities.map((c) => ({
