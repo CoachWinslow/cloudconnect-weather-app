@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Globe, { GlobeMethods } from "react-globe.gl";
 import * as topojson from "topojson-client";
+import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import type { City } from "@/data/cities";
@@ -26,6 +27,16 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
   const [size, setSize] = useState({ w: 800, h: 550 });
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [hoveredCity, setHoveredCity] = useState<City | null>(null);
+
+  const globeMaterial = useMemo(
+    () =>
+      new THREE.MeshPhongMaterial({
+        color: "#0a1419",
+        emissive: "#03161a",
+        shininess: 4,
+      }),
+    []
+  );
 
   // Resize observer
   useEffect(() => {
@@ -114,13 +125,7 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
         atmosphereColor="#00e0c6"
         atmosphereAltitude={0.18}
         // Solid dark globe (no texture) — matches Carto dark aesthetic
-        globeMaterial={
-          {
-            color: "#0a1419",
-            emissive: "#03161a",
-            shininess: 4,
-          } as any
-        }
+        globeMaterial={globeMaterial}
         // Country polygons — cyan outline + dark fill
         polygonsData={countries}
         polygonCapColor={() => "rgba(15, 30, 38, 0.85)"}
