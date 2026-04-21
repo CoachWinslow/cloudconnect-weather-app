@@ -127,7 +127,7 @@ serve(async (req) => {
     if (!response.ok) {
       let details: unknown = responseBody;
       try { details = JSON.parse(responseBody); } catch { /* keep raw */ }
-      return new Response(JSON.stringify({ error: "OpenWeatherMap API error", details: data }), {
+      return new Response(JSON.stringify({ error: "OpenWeatherMap API error", details }), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
