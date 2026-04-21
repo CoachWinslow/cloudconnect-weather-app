@@ -18,6 +18,8 @@ const translations = {
     searchNoResults: "No cities found",
     searchHint: "Type to search any city in the world",
     backToSearch: "Searched City",
+    monitoredStations: "Monitored Stations",
+    otherResults: "Other Results",
 
     // CityCard
     personnel: "Personnel",
@@ -74,6 +76,8 @@ const translations = {
     searchNoResults: "No se encontraron ciudades",
     searchHint: "Escribe para buscar cualquier ciudad del mundo",
     backToSearch: "Ciudad Buscada",
+    monitoredStations: "Estaciones Monitoreadas",
+    otherResults: "Otros Resultados",
 
     // CityCard
     personnel: "Personal",
