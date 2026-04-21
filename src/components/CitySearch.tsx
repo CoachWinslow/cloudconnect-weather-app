@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, Loader2, Radio } from "lucide-react";
 import { searchCities, GeocodingResult } from "@/services/geocodingService";
