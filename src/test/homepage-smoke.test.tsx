@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import CityCard from "@/components/CityCard";
 import type { City } from "@/data/cities";
 
@@ -63,13 +64,15 @@ describe("homepage smoke", () => {
   it("renders a city's temperature in the homepage card UI", () => {
     render(
       <MemoryRouter>
-        <SettingsProvider>
-          <CityCard
-            city={sampleCity}
-            weather={{ temp: 62, icon: "01d", description: "clear sky" }}
-            index={0}
-          />
-        </SettingsProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <CityCard
+              city={sampleCity}
+              weather={{ temp: 62, icon: "01d", description: "clear sky" }}
+              index={0}
+            />
+          </SettingsProvider>
+        </AuthProvider>
       </MemoryRouter>
     );
 
