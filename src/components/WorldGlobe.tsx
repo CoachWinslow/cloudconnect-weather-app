@@ -18,6 +18,9 @@ interface CountryFeature {
 }
 
 const WORLD_ATLAS = "https://unpkg.com/world-atlas@2.0.2/countries-110m.json";
+// Admin-1 (states/provinces) — Natural Earth via simplified GeoJSON CDN
+const ADMIN1_GEOJSON =
+  "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_1_states_provinces.geojson";
 
 export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -26,6 +29,8 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
   const { formatTemp } = useSettings();
   const [size, setSize] = useState({ w: 800, h: 550 });
   const [countries, setCountries] = useState<CountryFeature[]>([]);
+  const [admin1, setAdmin1] = useState<any[]>([]);
+  const [altitude, setAltitude] = useState<number>(1.8);
   const [hoveredCity, setHoveredCity] = useState<City | null>(null);
 
   const globeMaterial = useMemo(
@@ -61,6 +66,21 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
         if (cancelled) return;
         const fc = topojson.feature(world, world.objects.countries) as any;
         setCountries(fc.features as CountryFeature[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load admin-1 (states/provinces) — only fetched once
+  useEffect(() => {
+    let cancelled = false;
+    fetch(ADMIN1_GEOJSON)
+      .then((r) => r.json())
+      .then((geo: any) => {
+        if (cancelled) return;
+        setAdmin1(geo.features ?? []);
       })
       .catch(() => {});
     return () => {
