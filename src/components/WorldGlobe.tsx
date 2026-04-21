@@ -129,10 +129,10 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
           if (g) {
             g.pointOfView(
               { lat: d.lat, lng: d.lng, altitude: 0.8 },
-              1200
+              900
             );
           }
-          window.setTimeout(() => navigate(`/city/${d.id}`), 1250);
+          window.setTimeout(() => navigate(`/city/${d.id}`), 950);
         }}
         onPointHover={(d: any) => setHoveredCity(d ?? null)}
         pointLabel={(d: any) => {
