@@ -91,7 +91,7 @@ const Index = () => {
         </div>
 
         {/* Map */}
-        <div className="mb-8 relative">
+        <div className="mb-8 relative z-0">
           <div className="absolute -top-px left-4 px-2 py-0.5 bg-background border border-border border-b-0 rounded-t-sm z-10">
             <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">
               {t(language, "satelliteOverlay")}
