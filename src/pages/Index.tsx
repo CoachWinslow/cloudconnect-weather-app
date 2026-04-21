@@ -17,11 +17,12 @@ const Index = () => {
   const { data: cities, isLoading: citiesLoading } = useCities();
   const { data: weatherData } = useAllCitiesWeather(apiLang);
   const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
-    'north-america': true,
-    'central-south-america': true,
-    'europe': true,
-    'middle-east-africa': true,
-    'asia-pacific': true,
+    'north-america': false,
+    'central-south-america': false,
+    'europe': false,
+    'middle-east-africa': false,
+    'asia-pacific': false,
+    'australia-new-zealand': false,
   });
 
   const regionGroups = useMemo(() => {
