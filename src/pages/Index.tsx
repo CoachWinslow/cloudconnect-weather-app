@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import Header from "@/components/Header";
-import WorldGlobe from "@/components/WorldGlobe";
+const WorldGlobe = lazy(() => import("@/components/WorldGlobe"));
 import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
@@ -97,7 +97,13 @@ const Index = () => {
               {t(language, "satelliteOverlay")}
             </span>
           </div>
-          <WorldGlobe cities={cities} weatherData={weatherData || {}} />
+          <Suspense fallback={
+            <div className="w-full h-[450px] md:h-[550px] rounded-md glow-border bg-card flex items-center justify-center">
+              <span className="font-mono text-xs text-primary/60 uppercase tracking-wider">Loading globe...</span>
+            </div>
+          }>
+            <WorldGlobe cities={cities} weatherData={weatherData || {}} />
+          </Suspense>
         </div>
 
         {/* City Cards by Region */}
