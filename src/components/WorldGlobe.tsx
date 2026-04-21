@@ -61,7 +61,7 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    g.pointOfView({ lat: 25, lng: -60, altitude: 2.2 }, 0);
+    g.pointOfView({ lat: 25, lng: -60, altitude: 1.8 }, 0);
     const controls: any = g.controls();
     if (controls) {
       controls.autoRotate = false;
