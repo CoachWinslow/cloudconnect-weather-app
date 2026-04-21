@@ -174,6 +174,14 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
           </span>
         </div>
       )}
+      <button
+        type="button"
+        onClick={handleReset}
+        className="absolute top-2 right-2 px-2.5 py-1 rounded-sm bg-background/80 border border-primary/40 hover:border-primary hover:bg-background text-primary font-mono text-[10px] uppercase tracking-wider transition-colors"
+        aria-label="Reset globe view"
+      >
+        ⟲ Reset View
+      </button>
     </div>
   );
 }
