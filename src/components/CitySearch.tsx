@@ -207,7 +207,7 @@ export default function CitySearch() {
           ))}
         </div>
       )}
-      {isOpen && results.length === 0 && !loading && query.length >= 2 && (
+      {isOpen && results.length === 0 && localMatches.length === 0 && !loading && query.length >= 2 && (
         <div className="absolute z-50 top-full mt-1 w-full bg-card border border-border rounded-sm p-3 text-center">
           <span className="font-mono text-xs text-muted-foreground">{t(language, "searchNoResults")}</span>
         </div>
