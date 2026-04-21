@@ -30,6 +30,39 @@ function buildCorsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
+// In-memory response cache. Each edge instance keeps its own copy; entries expire after CACHE_TTL_MS.
+// This dramatically reduces upstream OpenWeather calls for repeated lookups (e.g. all visitors loading the homepage).
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_CACHE_ENTRIES = 500;
+type CacheEntry = { body: string; expiresAt: number };
+const cache = new Map<string, CacheEntry>();
+
+function buildCacheKey(endpoint: string, params: Record<string, unknown> | undefined): string {
+  if (!params) return endpoint;
+  const sortedKeys = Object.keys(params).sort();
+  const parts = sortedKeys.map((k) => `${k}=${String(params[k])}`);
+  return `${endpoint}?${parts.join("&")}`;
+}
+
+function getCached(key: string): string | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.body;
+}
+
+function setCached(key: string, body: string): void {
+  if (cache.size >= MAX_CACHE_ENTRIES) {
+    // Evict oldest entry (Map preserves insertion order).
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey !== undefined) cache.delete(oldestKey);
+  }
+  cache.set(key, { body, expiresAt: Date.now() + CACHE_TTL_MS });
+}
+
 serve(async (req) => {
   const origin = req.headers.get("Origin");
   const corsHeaders = buildCorsHeaders(origin);
@@ -65,6 +98,15 @@ serve(async (req) => {
       });
     }
 
+    // Serve from cache when available.
+    const cacheKey = buildCacheKey(endpoint, params);
+    const cachedBody = getCached(cacheKey);
+    if (cachedBody !== null) {
+      return new Response(cachedBody, {
+        headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+      });
+    }
+
     // Build URL
     const baseUrl =
       endpoint === "geo/1.0/direct"
@@ -80,17 +122,21 @@ serve(async (req) => {
     url.searchParams.set("appid", API_KEY);
 
     const response = await fetch(url.toString());
-    const data = await response.json();
+    const responseBody = await response.text();
 
     if (!response.ok) {
+      let details: unknown = responseBody;
+      try { details = JSON.parse(responseBody); } catch { /* keep raw */ }
       return new Response(JSON.stringify({ error: "OpenWeatherMap API error", details: data }), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    setCached(cacheKey, responseBody);
+
+    return new Response(responseBody, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "MISS" },
     });
   } catch (e) {
     console.error("weather-proxy error:", e);
