@@ -92,11 +92,6 @@ const Index = () => {
 
         {/* Map */}
         <div className="mb-8 relative z-0">
-          <div className="absolute -top-px left-4 px-2 py-0.5 bg-background border border-border border-b-0 rounded-t-sm z-10">
-            <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">
-              {t(language, "satelliteOverlay")}
-            </span>
-          </div>
           <Suspense fallback={
             <div className="w-full h-[450px] md:h-[550px] rounded-md glow-border bg-card flex items-center justify-center">
               <span className="font-mono text-xs text-primary/60 uppercase tracking-wider">Initializing globe...</span>
@@ -104,6 +99,11 @@ const Index = () => {
           }>
             <WorldGlobe cities={cities} weatherData={weatherData || {}} />
           </Suspense>
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-background/80 border border-border rounded-sm z-10 pointer-events-none">
+            <span className="font-mono text-[9px] text-primary/70 uppercase tracking-wider">
+              {t(language, "satelliteOverlay")}
+            </span>
+          </div>
         </div>
 
         {/* City Cards by Region */}
