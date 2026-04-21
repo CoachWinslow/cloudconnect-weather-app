@@ -206,12 +206,30 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
         atmosphereAltitude={0.18}
         // Solid dark globe (no texture) — matches Carto dark aesthetic
         globeMaterial={globeMaterial}
-        // Country polygons — cyan outline + dark fill
-        polygonsData={countries}
-        polygonCapColor={() => "rgba(15, 30, 38, 0.85)"}
+        // Country + admin-1 polygons — cyan outlines, dark fill
+        polygonsData={polygons}
+        polygonCapColor={(d: any) =>
+          d.__kind === "admin1" ? "rgba(15, 30, 38, 0)" : "rgba(15, 30, 38, 0.85)"
+        }
         polygonSideColor={() => "rgba(0, 224, 198, 0.05)"}
-        polygonStrokeColor={() => "rgba(0, 224, 198, 0.45)"}
-        polygonAltitude={0.005}
+        polygonStrokeColor={(d: any) =>
+          d.__kind === "admin1"
+            ? "rgba(0, 224, 198, 0.35)"
+            : "rgba(0, 224, 198, 0.55)"
+        }
+        polygonAltitude={(d: any) => (d.__kind === "admin1" ? 0.006 : 0.005)}
+        // Country / state labels — country always, state when zoomed in
+        labelsData={labels}
+        labelLat={(d: any) => d.lat}
+        labelLng={(d: any) => d.lng}
+        labelText={(d: any) => d.text}
+        labelSize={(d: any) => (d.kind === "country" ? 0.55 : 0.32)}
+        labelDotRadius={0}
+        labelColor={(d: any) =>
+          d.kind === "country" ? "rgba(0, 224, 198, 0.85)" : "rgba(180, 230, 230, 0.7)"
+        }
+        labelResolution={2}
+        labelAltitude={0.012}
         // Glowing pulse markers for cities
         ringsData={points}
         ringLat={(d: any) => d.lat}
