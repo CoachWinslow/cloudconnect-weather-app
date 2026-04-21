@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Globe, { GlobeMethods } from "react-globe.gl";
 import * as topojson from "topojson-client";
+import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import type { City } from "@/data/cities";
