@@ -5,7 +5,7 @@ import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity, ChevronDown } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
@@ -15,7 +15,13 @@ const Index = () => {
   const { language } = useSettings();
   const apiLang = language === "es" ? "es" : "en";
   const { data: cities, isLoading: citiesLoading } = useCities();
-  const { data: weatherData } = useAllCitiesWeather(apiLang);
+  const {
+    data: weatherPayload,
+    isError: weatherError,
+    isFetching: weatherFetching,
+    refetch: refetchWeather,
+  } = useAllCitiesWeather(apiLang);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
     'north-america': false,
     'central-south-america': false,
@@ -30,8 +36,18 @@ const Index = () => {
     return groupCitiesByRegion(cities);
   }, [cities]);
 
-  const onlineCount = weatherData ? Object.keys(weatherData).length : 0;
+  const weatherData = weatherPayload?.results ?? {};
+  const failedCount = weatherPayload?.failedCount ?? 0;
+  const totalStations = weatherPayload?.total ?? 0;
+  const onlineCount = Object.keys(weatherData).length;
+  const showBanner =
+    !bannerDismissed && (weatherError || (failedCount > 0 && totalStations > 0));
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+  const handleRetry = () => {
+    setBannerDismissed(false);
+    refetchWeather();
+  };
 
   if (citiesLoading || !cities) {
     return (
@@ -50,6 +66,44 @@ const Index = () => {
       <Header />
 
       <div className="container mx-auto px-4 py-6">
+        {/* Error banner */}
+        {showBanner && (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-3 px-3 py-3 rounded-sm bg-destructive/10 border border-destructive/40 animate-fade-in"
+          >
+            <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-xs font-semibold text-destructive uppercase tracking-wider">
+                {t(language, "telemetryErrorTitle")}
+              </p>
+              <p className="text-xs text-foreground/80 mt-1">
+                {weatherError
+                  ? t(language, "telemetryErrorBody")
+                  : t(language, "telemetryPartialBody")
+                      .replace("{failed}", String(failedCount))
+                      .replace("{total}", String(totalStations))}
+              </p>
+            </div>
+            <button
+              onClick={handleRetry}
+              disabled={weatherFetching}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-destructive/20 hover:bg-destructive/30 border border-destructive/40 text-destructive text-[10px] font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              aria-label={t(language, "retry")}
+            >
+              <RefreshCw className={`w-3 h-3 ${weatherFetching ? "animate-spin" : ""}`} />
+              {t(language, "retry")}
+            </button>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              aria-label={t(language, "dismiss")}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Mission Header */}
         <div className="text-center mb-6 animate-fade-in relative z-50">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-primary/10 border border-primary/20 mb-3">
@@ -97,7 +151,7 @@ const Index = () => {
               {t(language, "satelliteOverlay")}
             </span>
           </div>
-          <WorldMap cities={cities} weatherData={weatherData || {}} />
+          <WorldMap cities={cities} weatherData={weatherData} />
         </div>
 
         {/* City Cards by Region */}
@@ -138,7 +192,7 @@ const Index = () => {
                     <CityCard
                       key={city.id}
                       city={city}
-                      weather={weatherData?.[city.id]}
+                      weather={weatherData[city.id]}
                       index={i}
                     />
                   ))}
