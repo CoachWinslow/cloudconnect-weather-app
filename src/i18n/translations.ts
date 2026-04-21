@@ -21,6 +21,13 @@ const translations = {
     monitoredStations: "Monitored Stations",
     otherResults: "Other Results",
 
+    // Errors
+    telemetryErrorTitle: "Telemetry Link Disrupted",
+    telemetryErrorBody: "We couldn't reach the weather network. Some stations may show no data.",
+    telemetryPartialBody: "{failed} of {total} stations didn't report in. Showing the rest below.",
+    retry: "Retry",
+    dismiss: "Dismiss",
+
     // CityCard
     personnel: "Personnel",
     station: "Station",
@@ -78,6 +85,13 @@ const translations = {
     backToSearch: "Ciudad Buscada",
     monitoredStations: "Estaciones Monitoreadas",
     otherResults: "Otros Resultados",
+
+    // Errors
+    telemetryErrorTitle: "Conexión de Telemetría Interrumpida",
+    telemetryErrorBody: "No pudimos contactar la red meteorológica. Algunas estaciones pueden no mostrar datos.",
+    telemetryPartialBody: "{failed} de {total} estaciones no reportaron. Mostrando el resto abajo.",
+    retry: "Reintentar",
+    dismiss: "Descartar",
 
     // CityCard
     personnel: "Personal",
