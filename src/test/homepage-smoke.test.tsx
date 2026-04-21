@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CityCard from "@/components/CityCard";
@@ -62,17 +63,22 @@ describe("homepage smoke", () => {
   }, 20_000);
 
   it("renders a city's temperature in the homepage card UI", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <SettingsProvider>
-            <CityCard
-              city={sampleCity}
-              weather={{ temp: 62, icon: "01d", description: "clear sky" }}
-              index={0}
-            />
-          </SettingsProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <SettingsProvider>
+              <CityCard
+                city={sampleCity}
+                weather={{ temp: 62, icon: "01d", description: "clear sky" }}
+                index={0}
+              />
+            </SettingsProvider>
+          </AuthProvider>
+        </QueryClientProvider>
       </MemoryRouter>
     );
 
