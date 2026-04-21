@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
-import WorldMap from "@/components/WorldMap";
+import WorldGlobe from "@/components/WorldGlobe";
 import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
@@ -97,7 +97,7 @@ const Index = () => {
               {t(language, "satelliteOverlay")}
             </span>
           </div>
-          <WorldMap cities={cities} weatherData={weatherData || {}} />
+          <WorldGlobe cities={cities} weatherData={weatherData || {}} />
         </div>
 
         {/* City Cards by Region */}
