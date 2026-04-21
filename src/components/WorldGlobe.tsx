@@ -124,7 +124,16 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
         pointAltitude={0.01}
         pointRadius={0.4}
         pointResolution={12}
-        onPointClick={(d: any) => navigate(`/city/${d.id}`)}
+        onPointClick={(d: any) => {
+          const g = globeRef.current;
+          if (g) {
+            g.pointOfView(
+              { lat: d.lat, lng: d.lng, altitude: 0.8 },
+              1200
+            );
+          }
+          window.setTimeout(() => navigate(`/city/${d.id}`), 1250);
+        }}
         onPointHover={(d: any) => setHoveredCity(d ?? null)}
         pointLabel={(d: any) => {
           const c = d as City & { weather?: { temp: number; icon: string } };
