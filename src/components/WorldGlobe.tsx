@@ -106,6 +106,15 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
       controls.minPolarAngle = 0.35; // ~20° from top
       controls.maxPolarAngle = Math.PI - 0.35; // ~20° from bottom
     }
+    // Track altitude so we can toggle layers/labels based on zoom
+    let raf = 0;
+    const tick = () => {
+      const pov = g.pointOfView();
+      if (pov?.altitude != null) setAltitude(pov.altitude);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [size.w, size.h]);
 
   const handleReset = () => {
