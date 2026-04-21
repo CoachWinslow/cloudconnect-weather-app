@@ -57,11 +57,13 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
     };
   }, []);
 
+  const DEFAULT_POV = { lat: 25, lng: -60, altitude: 1.8 } as const;
+
   // Initial camera + controls
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    g.pointOfView({ lat: 25, lng: -60, altitude: 1.8 }, 0);
+    g.pointOfView(DEFAULT_POV, 0);
     const controls: any = g.controls();
     if (controls) {
       controls.autoRotate = false;
@@ -69,8 +71,17 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
       controls.minDistance = 180;
       controls.maxDistance = 600;
       controls.rotateSpeed = 0.6;
+      // Clamp vertical drag so the user can't flip past the poles into empty space
+      controls.minPolarAngle = 0.35; // ~20° from top
+      controls.maxPolarAngle = Math.PI - 0.35; // ~20° from bottom
     }
   }, [size.w, size.h]);
+
+  const handleReset = () => {
+    const g = globeRef.current;
+    if (!g) return;
+    g.pointOfView(DEFAULT_POV, 900);
+  };
 
   const points = useMemo(
     () =>
@@ -163,6 +174,14 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
           </span>
         </div>
       )}
+      <button
+        type="button"
+        onClick={handleReset}
+        className="absolute top-2 right-2 px-2.5 py-1 rounded-sm bg-background/80 border border-primary/40 hover:border-primary hover:bg-background text-primary font-mono text-[10px] uppercase tracking-wider transition-colors"
+        aria-label="Reset globe view"
+      >
+        ⟲ Reset View
+      </button>
     </div>
   );
 }
