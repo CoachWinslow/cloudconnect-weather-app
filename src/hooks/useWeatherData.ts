@@ -7,21 +7,28 @@ export function useAllCitiesWeather(lang: string = "en") {
   return useQuery({
     queryKey: ["all-cities-weather", lang, cities?.map(c => c.id).join(",")],
     queryFn: async () => {
-      if (!cities) return {};
+      if (!cities) return { results: {}, failedCount: 0, total: 0 };
       const results: Record<string, { temp: number; icon: string; description: string }> = {};
-      
+      let failedCount = 0;
+
       const promises = cities.map(async (city, i) => {
         await new Promise((r) => setTimeout(r, i * 150));
         try {
           const data = await fetchCurrentWeather(city.lat, city.lng, lang);
           results[city.id] = { temp: data.temp, icon: data.icon, description: data.description };
         } catch {
-          // Skip failed cities
+          failedCount += 1;
         }
       });
 
       await Promise.all(promises);
-      return results;
+
+      // If every city failed, treat as a hard failure so React Query surfaces it.
+      if (cities.length > 0 && failedCount === cities.length) {
+        throw new Error("Weather telemetry unavailable for all stations");
+      }
+
+      return { results, failedCount, total: cities.length };
     },
     enabled: !!cities && cities.length > 0,
     staleTime: 10 * 60 * 1000,
