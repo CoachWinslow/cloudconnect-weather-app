@@ -145,7 +145,7 @@ export default function CitySearch() {
         />
       </div>
       {isOpen && results.length > 0 && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-card border border-border rounded-sm shadow-lg overflow-hidden">
+        <div className="absolute z-[9999] top-full mt-1 w-full bg-card border border-border rounded-sm shadow-lg overflow-hidden">
           {localMatches.length > 0 && (
             <>
               <div className="px-3 py-1.5 bg-primary/5 border-b border-border/50">
@@ -188,7 +188,7 @@ export default function CitySearch() {
         </div>
       )}
       {isOpen && results.length === 0 && localMatches.length > 0 && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-card border border-border rounded-sm shadow-lg overflow-hidden">
+        <div className="absolute z-[9999] top-full mt-1 w-full bg-card border border-border rounded-sm shadow-lg overflow-hidden">
           <div className="px-3 py-1.5 bg-primary/5 border-b border-border/50">
             <span className="font-mono text-[9px] text-primary uppercase tracking-wider">
               {t(language, "monitoredStations")}
@@ -208,7 +208,7 @@ export default function CitySearch() {
         </div>
       )}
       {isOpen && results.length === 0 && localMatches.length === 0 && !loading && query.length >= 2 && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-card border border-border rounded-sm p-3 text-center">
+        <div className="absolute z-[9999] top-full mt-1 w-full bg-card border border-border rounded-sm p-3 text-center">
           <span className="font-mono text-xs text-muted-foreground">{t(language, "searchNoResults")}</span>
         </div>
       )}
