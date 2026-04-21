@@ -1,4 +1,4 @@
-export type RegionKey = 'north-america' | 'central-south-america' | 'europe' | 'middle-east-africa' | 'asia-pacific';
+export type RegionKey = 'north-america' | 'central-south-america' | 'europe' | 'middle-east-africa' | 'asia-pacific' | 'australia-new-zealand';
 
 export interface RegionGroup {
   key: RegionKey;
@@ -29,8 +29,8 @@ const COUNTRY_TO_REGION: Record<string, RegionKey> = {
   'Saudi Arabia': 'middle-east-africa',
   'Israel': 'middle-east-africa',
   'South Africa': 'middle-east-africa',
-  'Australia': 'asia-pacific',
-  'New Zealand': 'asia-pacific',
+  'Australia': 'australia-new-zealand',
+  'New Zealand': 'australia-new-zealand',
   'Japan': 'asia-pacific',
   'South Korea': 'asia-pacific',
   'India': 'asia-pacific',
@@ -49,6 +49,7 @@ const REGION_ORDER: RegionKey[] = [
   'europe',
   'middle-east-africa',
   'asia-pacific',
+  'australia-new-zealand',
 ];
 
 const REGION_LABELS: Record<RegionKey, { en: string; es: string }> = {
@@ -57,6 +58,7 @@ const REGION_LABELS: Record<RegionKey, { en: string; es: string }> = {
   'europe': { en: 'Europe', es: 'Europa' },
   'middle-east-africa': { en: 'Middle East & Africa', es: 'Medio Oriente y África' },
   'asia-pacific': { en: 'Asia Pacific', es: 'Asia Pacífico' },
+  'australia-new-zealand': { en: 'Australia & New Zealand', es: 'Australia y Nueva Zelanda' },
 };
 
 export function groupCitiesByRegion(cities: Array<any>): RegionGroup[] {
@@ -66,6 +68,7 @@ export function groupCitiesByRegion(cities: Array<any>): RegionGroup[] {
     'europe': [],
     'middle-east-africa': [],
     'asia-pacific': [],
+    'australia-new-zealand': [],
   };
 
   for (const city of cities) {
@@ -79,7 +82,6 @@ export function groupCitiesByRegion(cities: Array<any>): RegionGroup[] {
   }
 
   return REGION_ORDER
-    .filter(key => grouped[key].length > 0)
     .map(key => ({
       key,
       label: REGION_LABELS[key].en,
