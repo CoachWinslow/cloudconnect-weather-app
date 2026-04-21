@@ -11,10 +11,14 @@ export interface GeocodingResult {
 export async function searchCities(query: string): Promise<GeocodingResult[]> {
   if (!query || query.length < 2) return [];
 
+  // OpenWeather expects "City,STATE,US" (no spaces, ISO state code) for US lookups.
+  // Normalize inputs like "Greenville, PA" or "Greenville, Pennsylvania" into that format.
+  const normalizedQuery = normalizeUSQuery(query);
+
   const { data, error } = await supabase.functions.invoke("weather-proxy", {
     body: {
       endpoint: "geo/1.0/direct",
-      params: { q: query, limit: 10 },
+      params: { q: normalizedQuery, limit: 10 },
     },
   });
 
