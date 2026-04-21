@@ -127,7 +127,8 @@ serve(async (req) => {
     if (!response.ok) {
       let details: unknown = responseBody;
       try { details = JSON.parse(responseBody); } catch { /* keep raw */ }
-      return new Response(JSON.stringify({ error: "OpenWeatherMap API error", details }), {
+      console.error("OpenWeatherMap upstream error:", response.status, details);
+      return new Response(JSON.stringify({ error: "Weather data unavailable" }), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -141,7 +142,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("weather-proxy error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
