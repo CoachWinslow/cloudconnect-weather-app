@@ -83,6 +83,14 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
     g.pointOfView(DEFAULT_POV, 900);
   };
 
+  const handleZoom = (factor: number) => {
+    const g = globeRef.current;
+    if (!g) return;
+    const pov = g.pointOfView();
+    const next = Math.min(4, Math.max(0.5, (pov.altitude ?? 1.8) * factor));
+    g.pointOfView({ altitude: next }, 350);
+  };
+
   const points = useMemo(
     () =>
       cities.map((c) => ({
@@ -168,12 +176,32 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
         }}
       />
       {hoveredCity && (
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-sm bg-background/80 border border-border pointer-events-none">
+        <div className="absolute top-2 left-20 px-2 py-1 rounded-sm bg-background/80 border border-border pointer-events-none">
           <span className="font-mono text-[10px] text-primary uppercase tracking-wider">
             Tracking: {hoveredCity.name}
           </span>
         </div>
       )}
+      <div className="absolute top-2 left-2 flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={() => handleZoom(0.7)}
+          className="w-8 h-8 flex items-center justify-center rounded-sm bg-background/80 border border-primary/40 hover:border-primary hover:bg-background text-primary font-mono text-base leading-none transition-colors"
+          aria-label="Zoom in"
+          title="Zoom in"
+        >
+          +
+        </button>
+        <button
+          type="button"
+          onClick={() => handleZoom(1.4)}
+          className="w-8 h-8 flex items-center justify-center rounded-sm bg-background/80 border border-primary/40 hover:border-primary hover:bg-background text-primary font-mono text-base leading-none transition-colors"
+          aria-label="Zoom out"
+          title="Zoom out"
+        >
+          −
+        </button>
+      </div>
       <button
         type="button"
         onClick={handleReset}
