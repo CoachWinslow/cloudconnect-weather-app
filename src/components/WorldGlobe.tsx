@@ -140,6 +140,57 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
     [cities, weatherData]
   );
 
+  // Merge country + admin-1 polygons. Admin-1 only included when zoomed in.
+  const showAdmin1 = altitude < 1.4;
+  const polygons = useMemo(() => {
+    const tagged = countries.map((c) => ({ ...c, __kind: "country" }));
+    if (!showAdmin1) return tagged;
+    const states = admin1.map((s) => ({ ...s, __kind: "admin1" }));
+    return [...tagged, ...states];
+  }, [countries, admin1, showAdmin1]);
+
+  // Label data: country names always; state names when zoomed in.
+  const labels = useMemo(() => {
+    const countryLabels = countries
+      .filter((c: any) => c.properties?.name)
+      .map((c: any) => {
+        // Use first coord of first polygon ring as a rough centroid
+        const geom = c.geometry;
+        const coords =
+          geom?.type === "Polygon"
+            ? geom.coordinates?.[0]
+            : geom?.coordinates?.[0]?.[0];
+        if (!coords?.length) return null;
+        let lng = 0;
+        let lat = 0;
+        for (const [x, y] of coords) {
+          lng += x;
+          lat += y;
+        }
+        lng /= coords.length;
+        lat /= coords.length;
+        return {
+          lat,
+          lng,
+          text: String(c.properties.name).toUpperCase(),
+          kind: "country" as const,
+        };
+      })
+      .filter(Boolean) as Array<{ lat: number; lng: number; text: string; kind: "country" | "admin1" }>;
+
+    if (altitude > 1.0) return countryLabels;
+
+    const stateLabels = admin1
+      .filter((s: any) => s.properties?.name && s.properties?.latitude && s.properties?.longitude)
+      .map((s: any) => ({
+        lat: Number(s.properties.latitude),
+        lng: Number(s.properties.longitude),
+        text: String(s.properties.name),
+        kind: "admin1" as const,
+      }));
+    return [...countryLabels, ...stateLabels];
+  }, [countries, admin1, altitude]);
+
   return (
     <div
       ref={wrapperRef}
