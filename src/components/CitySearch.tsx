@@ -68,11 +68,30 @@ export default function CitySearch() {
   const [localMatches, setLocalMatches] = useState<City[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputWrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
   const { language } = useSettings();
   const { data: cities } = useCities();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const update = () => {
+      const el = inputWrapRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setDropdownPos({ top: r.bottom + 4, left: r.left, width: r.width });
+    };
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [isOpen, results, localMatches]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
