@@ -84,7 +84,7 @@ export default function WorldGlobe({ cities, weatherData }: WorldGlobeProps) {
   return (
     <div
       ref={wrapperRef}
-      className="w-full h-[450px] md:h-[550px] rounded-md glow-border overflow-hidden bg-card relative"
+      className="w-full h-[600px] md:h-[800px] rounded-md glow-border overflow-hidden bg-card relative"
     >
       <Globe
         ref={globeRef as any}
