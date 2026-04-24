@@ -13,6 +13,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { createClient } from "@supabase/supabase-js";
+import { rowCount } from "./utils/supabase-result";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
@@ -39,7 +40,7 @@ function expectBlockedOrEmpty(
     return;
   }
   // No error → must have returned zero rows.
-  expect((result.data ?? []).length).toBe(0);
+  expect(rowCount(result)).toBe(0);
 }
 
 function expectError(result: { error: { message: string } | null }) {
@@ -128,7 +129,7 @@ describe("RLS: public.favorites", () => {
       .eq("user_id", OTHER_USER_ID);
     // Either error or zero affected rows — both are safe
     if (!result.error) {
-      expect((result.data ?? []).length).toBe(0);
+      expect(rowCount(result)).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -137,7 +138,7 @@ describe("RLS: public.favorites", () => {
   it("blocks anonymous DELETE", async () => {
     const result = await anon.from("favorites").delete().neq("id", "");
     if (!result.error) {
-      expect((result.data ?? []).length).toBe(0);
+      expect(rowCount(result)).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -164,7 +165,7 @@ describe("RLS: public.profiles", () => {
       .update({ display_name: "hacked" })
       .eq("user_id", OTHER_USER_ID);
     if (!result.error) {
-      expect((result.data ?? []).length).toBe(0);
+      expect(rowCount(result)).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -191,7 +192,7 @@ describe("RLS: public.user_roles (privilege escalation defense)", () => {
       .delete()
       .eq("role", "admin");
     if (!result.error) {
-      expect((result.data ?? []).length).toBe(0);
+      expect(rowCount(result)).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
