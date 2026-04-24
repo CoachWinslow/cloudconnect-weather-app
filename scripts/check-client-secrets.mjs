@@ -20,7 +20,14 @@ const ROOT = process.cwd();
 // Patterns that should NEVER appear in client-bound code or VITE_ vars.
 // Each entry: { name, regex, appliesTo: "name" | "value" | "both" }
 const SECRET_PATTERNS = [
-  { name: "Supabase service-role key name", regex: /SERVICE_ROLE/i, appliesTo: "both" },
+  // For env-var NAMES we want the broad substring; for source code we want a stricter shape.
+  { name: "Supabase service-role key name", regex: /SERVICE_ROLE/i, appliesTo: "name" },
+  // Source-code hit: an actual JWT-shaped assignment to a service-role-ish identifier.
+  {
+    name: "Supabase service-role key value",
+    regex: /service[_\-]?role[_\-]?key["'\s:=]+["']?eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}/i,
+    appliesTo: "value",
+  },
   { name: "Stripe/secret key prefix (sk_)", regex: /\bsk_(live|test)_[A-Za-z0-9]{10,}/, appliesTo: "value" },
   { name: "Generic secret key name", regex: /\b(SECRET_KEY|PRIVATE_KEY|API_SECRET)\b/i, appliesTo: "name" },
   { name: "OpenAI key prefix", regex: /\bsk-[A-Za-z0-9]{20,}/, appliesTo: "value" },
