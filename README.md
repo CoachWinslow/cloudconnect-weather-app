@@ -1,5 +1,7 @@
 # Welcome to your Lovable project
 
+<!-- sync check: 2026-04-24 -->
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
