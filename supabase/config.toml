@@ -1,1 +1,4 @@
 project_id = "tnofpnyjlkeyilyinwsw"
+
+[functions.secrets-status]
+verify_jwt = true
