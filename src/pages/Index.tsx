@@ -5,11 +5,14 @@ import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X, Share2, Copy, Check, Rocket } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { toast } from "@/hooks/use-toast";
+
+const PUBLISHED_URL = "https://cloudconnectweather.lovable.app";
 
 const Index = () => {
   const { language } = useSettings();
@@ -22,6 +25,7 @@ const Index = () => {
     refetch: refetchWeather,
   } = useAllCitiesWeather(apiLang);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
     'north-america': false,
     'central-south-america': false,
@@ -47,6 +51,23 @@ const Index = () => {
   const handleRetry = () => {
     setBannerDismissed(false);
     refetchWeather();
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(PUBLISHED_URL);
+      setCopied(true);
+      toast({
+        title: language === "es" ? "Enlace copiado" : "Link copied",
+        description: PUBLISHED_URL,
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: language === "es" ? "No se pudo copiar" : "Couldn't copy",
+        variant: "destructive",
+      });
+    }
   };
 
   if (citiesLoading || !cities) {
@@ -120,6 +141,48 @@ const Index = () => {
           </p>
           <div className="mt-4">
             <CitySearch />
+          </div>
+        </div>
+
+        {/* Share / Publish panel */}
+        <div className="mb-4 px-3 py-3 rounded-sm bg-card border border-border flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <Share2 className="w-4 h-4 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="font-display text-xs font-semibold text-foreground uppercase tracking-wider">
+                {language === "es" ? "Comparte esta misión" : "Share this mission"}
+              </p>
+              <a
+                href={PUBLISHED_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] text-muted-foreground hover:text-primary transition-colors truncate block"
+              >
+                {PUBLISHED_URL}
+              </a>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm bg-secondary/50 hover:bg-secondary border border-border hover:border-primary/40 text-foreground text-[10px] font-mono uppercase tracking-wider transition-colors"
+              aria-label={language === "es" ? "Copiar enlace" : "Copy link"}
+            >
+              {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3 text-primary" />}
+              {copied
+                ? (language === "es" ? "Copiado" : "Copied")
+                : (language === "es" ? "Copiar" : "Copy")}
+            </button>
+            <a
+              href="https://docs.lovable.dev/features/deploy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm bg-primary/15 hover:bg-primary/25 border border-primary/30 hover:border-primary/60 text-primary text-[10px] font-mono uppercase tracking-wider transition-colors"
+              title={language === "es" ? "Publicar como público" : "Publish as Public"}
+            >
+              <Rocket className="w-3 h-3" />
+              {language === "es" ? "Publicar" : "Publish"}
+            </a>
           </div>
         </div>
 
