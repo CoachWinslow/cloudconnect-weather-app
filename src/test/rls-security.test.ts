@@ -39,7 +39,7 @@ function expectBlockedOrEmpty(
     return;
   }
   // No error → must have returned zero rows.
-  expect(Array.isArray(result.data) ? (result.data as unknown[]).length : 0).toBe(0);
+  expect((result.data ?? []).length).toBe(0);
 }
 
 function expectError(result: { error: { message: string } | null }) {
@@ -128,7 +128,7 @@ describe("RLS: public.favorites", () => {
       .eq("user_id", OTHER_USER_ID);
     // Either error or zero affected rows — both are safe
     if (!result.error) {
-      expect(Array.isArray(result.data) ? (result.data as unknown[]).length : 0).toBe(0);
+      expect((result.data ?? []).length).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -137,7 +137,7 @@ describe("RLS: public.favorites", () => {
   it("blocks anonymous DELETE", async () => {
     const result = await anon.from("favorites").delete().neq("id", "");
     if (!result.error) {
-      expect(Array.isArray(result.data) ? (result.data as unknown[]).length : 0).toBe(0);
+      expect((result.data ?? []).length).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -164,7 +164,7 @@ describe("RLS: public.profiles", () => {
       .update({ display_name: "hacked" })
       .eq("user_id", OTHER_USER_ID);
     if (!result.error) {
-      expect(Array.isArray(result.data) ? (result.data as unknown[]).length : 0).toBe(0);
+      expect((result.data ?? []).length).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
@@ -191,7 +191,7 @@ describe("RLS: public.user_roles (privilege escalation defense)", () => {
       .delete()
       .eq("role", "admin");
     if (!result.error) {
-      expect(Array.isArray(result.data) ? (result.data as unknown[]).length : 0).toBe(0);
+      expect((result.data ?? []).length).toBe(0);
     } else {
       expect(result.error.message.length).toBeGreaterThan(0);
     }
