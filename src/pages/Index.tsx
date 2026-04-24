@@ -5,14 +5,25 @@ import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X, Share2, Copy, Check, Rocket } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X, Share2, Copy, Check, Rocket, UserCheck, ExternalLink } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const PUBLISHED_URL = "https://cloudconnectweather.lovable.app";
+const PROFILE_SETTINGS_URL = "https://lovable.dev/settings/account";
 
 const Index = () => {
   const { language } = useSettings();
@@ -26,6 +37,7 @@ const Index = () => {
   } = useAllCitiesWeather(apiLang);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [verifyOpen, setVerifyOpen] = useState(false);
   const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
     'north-america': false,
     'central-south-america': false,
@@ -183,8 +195,69 @@ const Index = () => {
               <Rocket className="w-3 h-3" />
               {language === "es" ? "Publicar" : "Publish"}
             </a>
+            <button
+              onClick={() => setVerifyOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm bg-secondary/50 hover:bg-secondary border border-border hover:border-primary/40 text-foreground text-[10px] font-mono uppercase tracking-wider transition-colors"
+              title={language === "es" ? "Verificar perfil público" : "Verify profile is public"}
+            >
+              <UserCheck className="w-3 h-3 text-primary" />
+              {language === "es" ? "Verificar perfil" : "Verify profile"}
+            </button>
           </div>
         </div>
+
+        <AlertDialog open={verifyOpen} onOpenChange={setVerifyOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-primary" />
+                {language === "es" ? "Verifica tu perfil público" : "Verify your profile is public"}
+              </AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-3 text-sm">
+                  <p>
+                    {language === "es"
+                      ? "Solo los perfiles públicos muestran proyectos publicados. Sigue estos pasos:"
+                      : "Only public profiles list published projects. Follow these steps:"}
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                    <li>
+                      {language === "es"
+                        ? "Abre la configuración de tu cuenta de Lovable."
+                        : "Open your Lovable account settings."}
+                    </li>
+                    <li>
+                      {language === "es"
+                        ? "Busca \"Profile visibility\" (Visibilidad del perfil)."
+                        : 'Find the "Profile visibility" section.'}
+                    </li>
+                    <li>
+                      {language === "es"
+                        ? "Asegúrate de que esté en \"Public\"."
+                        : 'Make sure it\'s set to "Public".'}
+                    </li>
+                  </ol>
+                  <p className="text-xs text-muted-foreground">
+                    {language === "es"
+                      ? "Lovable no expone esta configuración a la app, así que debes confirmarla manualmente."
+                      : "Lovable doesn't expose this setting to the app, so you'll need to confirm it manually."}
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>
+                {language === "es" ? "Cerrar" : "Close"}
+              </AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <a href={PROFILE_SETTINGS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  {language === "es" ? "Abrir configuración" : "Open settings"}
+                </a>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Status Bar */}
         <div className="flex items-center justify-between mb-4 px-3 py-2 rounded-sm bg-card border border-border">
