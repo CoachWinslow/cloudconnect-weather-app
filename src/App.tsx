@@ -14,6 +14,7 @@ import Favorites from "./pages/Favorites";
 import Admin from "./pages/Admin";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Debug from "./pages/Debug";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/debug" element={<Debug />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
