@@ -1,0 +1,69 @@
+name: Security Scan
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  security:
+    name: Security & Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: Run tests (includes weather-proxy smoke test)
+        run: npx vitest run
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: npm audit (high & critical only)
+        run: npm audit --audit-level=high
+
+      # Optional: Lovable Cloud security scan via API.
+      # Requires LOVABLE_API_TOKEN and LOVABLE_PROJECT_ID secrets in repo settings.
+      # Fails the build if new findings of level "warn" or "error" appear.
+      - name: Lovable security scan
+        if: ${{ env.LOVABLE_API_TOKEN != '' }}
+        env:
+          LOVABLE_API_TOKEN: ${{ secrets.LOVABLE_API_TOKEN }}
+          LOVABLE_PROJECT_ID: ${{ secrets.LOVABLE_PROJECT_ID }}
+        run: |
+          set -e
+          echo "Triggering Lovable security scan for project $LOVABLE_PROJECT_ID..."
+          response=$(curl -sS -X POST \
+            -H "Authorization: Bearer $LOVABLE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.lovable.dev/v1/projects/$LOVABLE_PROJECT_ID/security/scan")
+          echo "$response" | tee scan-result.json
+          findings=$(echo "$response" | jq '[.findings[]? | select(.level == "warn" or .level == "error")] | length')
+          echo "New high/critical findings: $findings"
+          if [ "$findings" -gt 0 ]; then
+            echo "::error::Security scan found $findings new high/critical issue(s). Failing build."
+            exit 1
+          fi
+
+      - name: Upload scan artifact
+        if: always() && hashFiles('scan-result.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-result
+          path: scan-result.json
+          retention-days: 30
