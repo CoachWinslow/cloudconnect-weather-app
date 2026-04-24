@@ -1,4 +1,4 @@
-import { Satellite, Activity, Radio, Globe, Thermometer, User, Heart, LogOut, Shield } from "lucide-react";
+import { Satellite, Activity, Radio, Globe, Thermometer, User, Heart, LogOut, Shield, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -70,6 +70,15 @@ export default function Header() {
                 <span className="font-mono text-[10px] font-semibold text-primary uppercase hidden sm:inline">
                   Admin
                 </span>
+              </button>
+            )}
+            {user && isAdmin && (
+              <button
+                onClick={() => navigate("/debug")}
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-primary/30 hover:border-primary/60 transition-colors bg-primary/10"
+                title="System Debug"
+              >
+                <Settings className="w-3 h-3 text-primary" />
               </button>
             )}
             {user && (
