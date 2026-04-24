@@ -5,25 +5,12 @@ import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X, Share2, Copy, Check, Rocket, UserCheck, ExternalLink } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-const PUBLISHED_URL = "https://cloudconnectweather.lovable.app";
-const PROFILE_SETTINGS_URL = "https://lovable.dev/settings/account";
 
 const Index = () => {
   const { language } = useSettings();
@@ -36,8 +23,6 @@ const Index = () => {
     refetch: refetchWeather,
   } = useAllCitiesWeather(apiLang);
   const [bannerDismissed, setBannerDismissed] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [verifyOpen, setVerifyOpen] = useState(false);
   const [openRegions, setOpenRegions] = useState<Record<RegionKey, boolean>>({
     'north-america': false,
     'central-south-america': false,
@@ -63,23 +48,6 @@ const Index = () => {
   const handleRetry = () => {
     setBannerDismissed(false);
     refetchWeather();
-  };
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(PUBLISHED_URL);
-      setCopied(true);
-      toast({
-        title: language === "es" ? "Enlace copiado" : "Link copied",
-        description: PUBLISHED_URL,
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({
-        title: language === "es" ? "No se pudo copiar" : "Couldn't copy",
-        variant: "destructive",
-      });
-    }
   };
 
   if (citiesLoading || !cities) {
