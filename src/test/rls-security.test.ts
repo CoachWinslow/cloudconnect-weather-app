@@ -53,7 +53,7 @@ function expectError(result: { error: { message: string } | null }) {
   expect(result.error?.message.length).toBeGreaterThan(0);
 }
 
-describe("RLS: public.cities", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS: public.cities", () => {
   it("allows anonymous SELECT (cities are public)", async () => {
     const { data, error } = await anon.from("cities").select("id").limit(1);
     expect(error).toBeNull();
@@ -111,7 +111,7 @@ describe("RLS: public.cities", () => {
   });
 });
 
-describe("RLS: public.favorites", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS: public.favorites", () => {
   it("blocks anonymous SELECT", async () => {
     const result = await anon.from("favorites").select("*").limit(10);
     expectBlockedOrEmpty(result);
@@ -150,7 +150,7 @@ describe("RLS: public.favorites", () => {
   });
 });
 
-describe("RLS: public.profiles", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS: public.profiles", () => {
   it("blocks anonymous SELECT (no leaked display_names)", async () => {
     const result = await anon.from("profiles").select("display_name").limit(10);
     expectBlockedOrEmpty(result);
@@ -177,7 +177,7 @@ describe("RLS: public.profiles", () => {
   });
 });
 
-describe("RLS: public.user_roles (privilege escalation defense)", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS: public.user_roles (privilege escalation defense)", () => {
   it("blocks anonymous SELECT (cannot enumerate admins)", async () => {
     const result = await anon.from("user_roles").select("*").limit(10);
     expectBlockedOrEmpty(result);
@@ -204,7 +204,7 @@ describe("RLS: public.user_roles (privilege escalation defense)", () => {
   });
 });
 
-describe("RLS: edge function defense in depth", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS: edge function defense in depth", () => {
   it("secrets-status edge function rejects unauthenticated calls", async () => {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/secrets-status`, {
       method: "POST",
