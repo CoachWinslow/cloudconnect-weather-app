@@ -4,6 +4,40 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Save, X, Activity } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+// Schema enforcing that every city has a non-empty country, valid coords,
+// and required content fields. Trim + length limits guard against bad input.
+const citySchema = z.object({
+  id: z
+    .string()
+    .trim()
+    .min(1, "ID is required")
+    .max(60, "ID must be 60 characters or fewer")
+    .regex(/^[a-z0-9-]+$/, "ID must be kebab-case (lowercase letters, numbers, hyphens)"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "City name is required")
+    .max(80, "Name must be 80 characters or fewer"),
+  country: z
+    .string()
+    .trim()
+    .min(1, "Country is required — every city must have a country")
+    .max(80, "Country must be 80 characters or fewer"),
+  lat: z.number().min(-90, "Latitude must be ≥ -90").max(90, "Latitude must be ≤ 90"),
+  lng: z.number().min(-180, "Longitude must be ≥ -180").max(180, "Longitude must be ≤ 180"),
+  connection_description: z
+    .string()
+    .trim()
+    .min(1, "Description (EN) is required")
+    .max(5000, "Description must be 5000 characters or fewer"),
+  fun_fact: z
+    .string()
+    .trim()
+    .min(1, "Fun fact (EN) is required")
+    .max(500, "Fun fact must be 500 characters or fewer"),
+});
 
 const emptyCity: Omit<DbCity, "sort_order"> = {
   id: "",
@@ -47,27 +81,42 @@ export default function AdminCities() {
 
   const handleSave = async () => {
     if (!editing) return;
-    if (!editing.id || !editing.name || !editing.country || !editing.connection_description || !editing.fun_fact) {
-      toast.error("Please fill in all required fields (ID, Name, Country, Description, Fun Fact)");
+
+    // Validate with zod so we catch missing country (and other required
+    // fields) before hitting the database.
+    const result = citySchema.safeParse({
+      id: editing.id,
+      name: editing.name,
+      country: editing.country,
+      lat: editing.lat,
+      lng: editing.lng,
+      connection_description: editing.connection_description,
+      fun_fact: editing.fun_fact,
+    });
+    if (!result.success) {
+      const first = result.error.issues[0];
+      toast.error(first.message);
       return;
     }
+    // Use trimmed/normalized values from zod for the actual write
+    const v = result.data;
     setSaving(true);
     try {
       if (isNew) {
         const { error } = await supabase.from("cities").insert({
-          id: editing.id,
-          name: editing.name,
-          country: editing.country,
-          lat: editing.lat,
-          lng: editing.lng,
+          id: v.id,
+          name: v.name,
+          country: v.country,
+          lat: v.lat,
+          lng: v.lng,
           connection_type: editing.connection_type,
           connection_name: editing.connection_name,
           connection_tagline: editing.connection_tagline,
-          connection_description: editing.connection_description,
+          connection_description: v.connection_description,
           connection_description_es: editing.connection_description_es,
           connection_emoji: editing.connection_emoji,
           connection_url: editing.connection_url,
-          fun_fact: editing.fun_fact,
+          fun_fact: v.fun_fact,
           fun_fact_es: editing.fun_fact_es,
           sort_order: editing.sort_order,
         });
@@ -75,21 +124,21 @@ export default function AdminCities() {
         toast.success("City added!");
       } else {
         const { error } = await supabase.from("cities").update({
-          name: editing.name,
-          country: editing.country,
-          lat: editing.lat,
-          lng: editing.lng,
+          name: v.name,
+          country: v.country,
+          lat: v.lat,
+          lng: v.lng,
           connection_type: editing.connection_type,
           connection_name: editing.connection_name,
           connection_tagline: editing.connection_tagline,
-          connection_description: editing.connection_description,
+          connection_description: v.connection_description,
           connection_description_es: editing.connection_description_es,
           connection_emoji: editing.connection_emoji,
           connection_url: editing.connection_url,
-          fun_fact: editing.fun_fact,
+          fun_fact: v.fun_fact,
           fun_fact_es: editing.fun_fact_es,
           sort_order: editing.sort_order,
-        }).eq("id", editing.id);
+        }).eq("id", v.id);
         if (error) throw error;
         toast.success("City updated!");
       }
@@ -149,11 +198,11 @@ export default function AdminCities() {
             {isNew ? "Add New City" : `Edit: ${editing.name}`}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="ID (slug)" value={editing.id} disabled={!isNew}
+            <Field label="ID (slug) *" value={editing.id} disabled={!isNew}
               onChange={(v) => setEditing({ ...editing, id: v })} />
-            <Field label="Name" value={editing.name}
+            <Field label="Name *" value={editing.name}
               onChange={(v) => setEditing({ ...editing, name: v })} />
-            <Field label="Country" value={editing.country}
+            <Field label="Country *" value={editing.country}
               onChange={(v) => setEditing({ ...editing, country: v })} />
             <Field label="Emoji" value={editing.connection_emoji}
               onChange={(v) => setEditing({ ...editing, connection_emoji: v })} />
