@@ -18,11 +18,16 @@ import { rowCount } from "./utils/supabase-result";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
+const hasSupabaseEnv = Boolean(SUPABASE_URL && SUPABASE_KEY);
+
 // Fresh anonymous client (no logged-in user) — simulates an attacker with
-// only the public key.
-const anon = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
+// only the public key. Only constructed when env vars are available
+// (CI without secrets configured will skip this entire suite).
+const anon = hasSupabaseEnv
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
+  : (null as never);
 
 const FAKE_USER_ID = "00000000-0000-0000-0000-000000000001";
 const OTHER_USER_ID = "00000000-0000-0000-0000-000000000002";
