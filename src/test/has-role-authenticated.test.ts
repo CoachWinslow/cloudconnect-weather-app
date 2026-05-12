@@ -160,11 +160,12 @@ describe.skipIf(!hasFixtures)("has_role(): authenticated execute is allowed", ()
     const { data, error } = await f.client
       .from("user_roles")
       .select("user_id, role")
-      .limit(5);
+      .eq("user_id", f.userId);
     expect(error).toBeNull();
     expect(Array.isArray(data)).toBe(true);
-    // Must include at least their own row.
-    expect((data ?? []).some((r) => r.user_id === f.userId)).toBe(true);
+    // Admin can read their own role row through the admin SELECT policy.
+    expect((data ?? []).length).toBe(1);
+    expect(data?.[0].role).toBe("admin");
   });
 
   it("editor user CANNOT SELECT user_roles (admin-only policy)", async () => {
