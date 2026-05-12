@@ -24,6 +24,7 @@ const COUNTRY_TO_REGION: Record<string, RegionKey> = {
   'Italy': 'europe',
   'Sweden': 'europe',
   'Switzerland': 'europe',
+  'China': 'asia-pacific',
   'Egypt': 'middle-east-africa',
   'Bahrain': 'middle-east-africa',
   'Saudi Arabia': 'middle-east-africa',
