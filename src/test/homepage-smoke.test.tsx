@@ -42,7 +42,7 @@ const sampleCity: City = {
 };
 
 describe("homepage smoke", () => {
-  it("weather-proxy returns HTTP 200 for a real city lookup", async () => {
+  it.skipIf(!SUPABASE_URL || !SUPABASE_KEY)("weather-proxy returns HTTP 200 for a real city lookup", async () => {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/weather-proxy`, {
       method: "POST",
       headers: {
