@@ -26,19 +26,87 @@ jobs:
         run: npm ci
 
       - name: Scan for client-side secret leaks
-        run: node scripts/check-client-secrets.mjs
+        id: secret_scan
+        run: |
+          mkdir -p audit-report
+          node scripts/check-client-secrets.mjs | tee audit-report/secret-scan.txt
 
       - name: TypeScript typecheck
-        run: npx tsc --noEmit
+        run: |
+          mkdir -p audit-report
+          npx tsc --noEmit 2>&1 | tee audit-report/typecheck.txt
 
       - name: Run tests (includes weather-proxy smoke test)
-        run: npx vitest run
+        run: |
+          mkdir -p audit-report
+          npx vitest run --reporter=default 2>&1 | tee audit-report/tests.txt
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: npm audit (high & critical only)
-        run: npm audit --audit-level=high
+        id: npm_audit
+        run: |
+          mkdir -p audit-report
+          # Capture full JSON (always succeeds) for the report
+          npm audit --json > audit-report/npm-audit.json || true
+          # Human-readable summary
+          npm audit > audit-report/npm-audit.txt || true
+          # Gate the build on high/critical only (this is the actual pass/fail)
+          npm audit --audit-level=high
+
+      - name: Generate audit summary report
+        if: always()
+        run: |
+          mkdir -p audit-report
+          REPORT=audit-report/SUMMARY.md
+          {
+            echo "# Security Scan Report"
+            echo ""
+            echo "- **Repository:** \`${{ github.repository }}\`"
+            echo "- **Commit:** \`${{ github.sha }}\`"
+            echo "- **Branch / Ref:** \`${{ github.ref_name }}\`"
+            echo "- **Triggered by:** ${{ github.actor }} (\`${{ github.event_name }}\`)"
+            echo "- **Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo "- **Generated:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo ""
+            echo "## Job status: \`${{ job.status }}\`"
+            echo ""
+            echo "## npm audit summary"
+            echo ""
+            if [ -f audit-report/npm-audit.json ]; then
+              node -e "
+                const a = require('./audit-report/npm-audit.json');
+                const v = a.metadata && a.metadata.vulnerabilities || {};
+                console.log('| Severity | Count |');
+                console.log('| --- | --- |');
+                for (const k of ['critical','high','moderate','low','info']) {
+                  console.log('| ' + k + ' | ' + (v[k] || 0) + ' |');
+                }
+                const total = Object.values(v).reduce((s,n)=>s+n,0);
+                console.log('| **Total** | **' + total + '** |');
+              " || echo "(could not parse npm-audit.json)"
+            else
+              echo "_No npm-audit.json produced._"
+            fi
+            echo ""
+            echo "## Files in this artifact"
+            echo ""
+            echo "- \`SUMMARY.md\` (this file)"
+            echo "- \`secret-scan.txt\` — client-side secret leak scan output"
+            echo "- \`typecheck.txt\` — TypeScript typecheck output"
+            echo "- \`tests.txt\` — Vitest run output"
+            echo "- \`npm-audit.txt\` — human-readable npm audit"
+            echo "- \`npm-audit.json\` — full machine-readable npm audit"
+            [ -f scan-result.json ] && echo "- \`scan-result.json\` — Lovable Cloud security scan response"
+          } > "$REPORT"
+          echo ""
+          echo "===== SUMMARY.md ====="
+          cat "$REPORT"
+
+      - name: Publish summary to GitHub Actions UI
+        if: always()
+        run: cat audit-report/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
 
       # Optional: Lovable Cloud security scan via API.
       # Requires LOVABLE_API_TOKEN and LOVABLE_PROJECT_ID secrets in repo settings.
@@ -55,7 +123,8 @@ jobs:
             -H "Authorization: Bearer $LOVABLE_API_TOKEN" \
             -H "Content-Type: application/json" \
             "https://api.lovable.dev/v1/projects/$LOVABLE_PROJECT_ID/security/scan")
-          echo "$response" | tee scan-result.json
+          mkdir -p audit-report
+          echo "$response" | tee scan-result.json audit-report/scan-result.json
           findings=$(echo "$response" | jq '[.findings[]? | select(.level == "warn" or .level == "error")] | length')
           echo "New high/critical findings: $findings"
           if [ "$findings" -gt 0 ]; then
@@ -63,10 +132,10 @@ jobs:
             exit 1
           fi
 
-      - name: Upload scan artifact
-        if: always() && hashFiles('scan-result.json') != ''
+      - name: Upload security scan report artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: security-scan-result
-          path: scan-result.json
+          name: security-scan-report-${{ github.run_number }}
+          path: audit-report/
           retention-days: 30
