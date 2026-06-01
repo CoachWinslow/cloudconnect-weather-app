@@ -92,6 +92,8 @@ const translations = {
     telemetryErrorTitle: "Conexión de Telemetría Interrumpida",
     telemetryErrorBody: "No pudimos contactar la red meteorológica. Algunas estaciones pueden no mostrar datos.",
     telemetryPartialBody: "{failed} de {total} estaciones no reportaron. Mostrando el resto abajo.",
+    telemetryActivatingTitle: "Aprovisionando Telemetría Meteorológica",
+    telemetryActivatingBody: "Una nueva credencial API se está propagando por la red. Las estaciones se conectarán automáticamente en unos minutos.",
     retry: "Reintentar",
     dismiss: "Descartar",
 
