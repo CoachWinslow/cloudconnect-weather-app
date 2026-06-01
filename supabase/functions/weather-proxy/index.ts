@@ -135,7 +135,10 @@ serve(async (req) => {
         u.searchParams.set("appid", API_KEY);
         const resp = await fetch(u.toString());
         const body = await resp.text();
-        if (!resp.ok) { results[c.id] = { error: resp.status }; return; }
+        if (!resp.ok) {
+          results[c.id] = { error: resp.status, activating: resp.status === 401 };
+          return;
+        }
         setCached(key, body);
         results[c.id] = JSON.parse(body);
       }
@@ -151,7 +154,11 @@ serve(async (req) => {
       });
       await Promise.all(workers);
 
-      return new Response(JSON.stringify({ results }), {
+      // Aggregate flag: every station 401 means the API key is still activating upstream.
+      const entries = Object.values(results);
+      const allActivating =
+        entries.length > 0 && entries.every((e: any) => e && e.activating === true);
+      return new Response(JSON.stringify({ results, activating: allActivating }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -186,6 +193,16 @@ serve(async (req) => {
       let details: unknown = responseBody;
       try { details = JSON.parse(responseBody); } catch { /* keep raw */ }
       console.error("OpenWeatherMap upstream error:", response.status, details);
+      // 401 from upstream = our key is brand-new and still activating on OpenWeatherMap's side.
+      // Surface this as a soft 200 with an `activating` flag so the client can show a friendly
+      // "provisioning telemetry" state and retry on a shorter interval, instead of treating it
+      // as a hard error.
+      if (response.status === 401) {
+        return new Response(
+          JSON.stringify({ error: "Weather telemetry activating", activating: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
       return new Response(JSON.stringify({ error: "Weather data unavailable" }), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
