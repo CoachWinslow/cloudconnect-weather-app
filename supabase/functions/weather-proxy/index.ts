@@ -90,10 +90,68 @@ serve(async (req) => {
     const { endpoint, params } = await req.json();
 
     // Validate endpoint to prevent abuse
-    const allowedEndpoints = ["weather", "forecast", "geo/1.0/direct"];
+    const allowedEndpoints = ["weather", "forecast", "geo/1.0/direct", "bulk"];
     if (!allowedEndpoints.includes(endpoint)) {
       return new Response(JSON.stringify({ error: "Invalid endpoint" }), {
         status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Bulk endpoint: fetch current weather for many coords in one request,
+    // throttled server-side to stay under OpenWeather's 60 rpm free-tier limit.
+    if (endpoint === "bulk") {
+      const coords: Array<{ id: string; lat: number; lon: number }> =
+        Array.isArray(params?.coords) ? params.coords : [];
+      const units = params?.units ?? "imperial";
+      const lang = params?.lang ?? "en";
+
+      if (coords.length === 0 || coords.length > 200) {
+        return new Response(JSON.stringify({ error: "Invalid coords" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const results: Record<string, unknown> = {};
+      const CONCURRENCY = 4;          // ~4 parallel fetches
+      const MIN_INTERVAL_MS = 80;     // ≤ ~50 rpm sustained from this instance
+      let lastFetchAt = 0;
+
+      async function fetchOne(c: { id: string; lat: number; lon: number }) {
+        const key = buildCacheKey("weather", { lat: c.lat, lon: c.lon, units, lang });
+        const cached = getCached(key);
+        if (cached !== null) { results[c.id] = JSON.parse(cached); return; }
+
+        const wait = Math.max(0, MIN_INTERVAL_MS - (Date.now() - lastFetchAt));
+        if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+        lastFetchAt = Date.now();
+
+        const u = new URL("https://api.openweathermap.org/data/2.5/weather");
+        u.searchParams.set("lat", String(c.lat));
+        u.searchParams.set("lon", String(c.lon));
+        u.searchParams.set("units", String(units));
+        u.searchParams.set("lang", String(lang));
+        u.searchParams.set("appid", API_KEY);
+        const resp = await fetch(u.toString());
+        const body = await resp.text();
+        if (!resp.ok) { results[c.id] = { error: resp.status }; return; }
+        setCached(key, body);
+        results[c.id] = JSON.parse(body);
+      }
+
+      // Simple concurrency-limited queue.
+      const queue = [...coords];
+      const workers = Array.from({ length: CONCURRENCY }, async () => {
+        while (queue.length) {
+          const next = queue.shift();
+          if (!next) break;
+          try { await fetchOne(next); } catch { results[next.id] = { error: "fetch_failed" }; }
+        }
+      });
+      await Promise.all(workers);
+
+      return new Response(JSON.stringify({ results }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
