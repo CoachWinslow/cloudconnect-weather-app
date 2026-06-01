@@ -27,6 +27,8 @@ const translations = {
     telemetryPartialBody: "{failed} of {total} stations didn't report in. Showing the rest below.",
     telemetryActivatingTitle: "Provisioning Weather Telemetry",
     telemetryActivatingBody: "A new API credential is propagating through the upstream network. Stations will come online automatically within minutes.",
+    telemetryRateLimitedTitle: "Telemetry Throttled",
+    telemetryRateLimitedBody: "Upstream weather feed temporarily capped. Stations will resume reporting automatically within a few minutes.",
     retry: "Retry",
     dismiss: "Dismiss",
 
