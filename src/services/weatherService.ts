@@ -1,5 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export class WeatherActivatingError extends Error {
+  constructor() {
+    super("Weather telemetry activating");
+    this.name = "WeatherActivatingError";
+  }
+}
+
 export interface WeatherData {
   temp: number;
   feelsLike: number;
@@ -34,6 +41,7 @@ async function callWeatherProxy(endpoint: string, params: Record<string, string 
     body: { endpoint, params },
   });
   if (error) throw new Error(error.message || "Weather proxy error");
+  if (data?.activating) throw new WeatherActivatingError();
   if (data?.error) throw new Error(data.error);
   return data;
 }
