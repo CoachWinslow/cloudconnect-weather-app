@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export class WeatherActivatingError extends Error {
   constructor() {
@@ -12,6 +13,51 @@ export class WeatherRateLimitedError extends Error {
     super("Weather telemetry rate-limited");
     this.name = "WeatherRateLimitedError";
   }
+}
+
+// Client-side throttle: caps how many concurrent OWM calls the app can have
+// in-flight, AND how many it can make per rolling minute. Prevents a chatty
+// component tree from accidentally tripping upstream rate limits.
+const MAX_CONCURRENT = 6;
+const MAX_PER_MINUTE = 60;
+let inFlight = 0;
+const waiters: Array<() => void> = [];
+const recentRequestTimes: number[] = [];
+let lastRateLimitToastAt = 0;
+
+function emitRateLimitToast() {
+  const now = Date.now();
+  // De-dupe: at most one toast per 30s
+  if (now - lastRateLimitToastAt < 30_000) return;
+  lastRateLimitToastAt = now;
+  toast.warning("Weather telemetry throttled", {
+    description: "Backing off. Live data will resume automatically.",
+    duration: 6000,
+  });
+}
+
+async function acquireSlot() {
+  // Enforce per-minute ceiling first.
+  const now = Date.now();
+  while (recentRequestTimes.length && now - recentRequestTimes[0] > 60_000) {
+    recentRequestTimes.shift();
+  }
+  if (recentRequestTimes.length >= MAX_PER_MINUTE) {
+    const waitMs = 60_000 - (now - recentRequestTimes[0]);
+    await new Promise((r) => setTimeout(r, Math.max(waitMs, 100)));
+  }
+  // Then enforce concurrency cap.
+  if (inFlight >= MAX_CONCURRENT) {
+    await new Promise<void>((resolve) => waiters.push(resolve));
+  }
+  inFlight += 1;
+  recentRequestTimes.push(Date.now());
+}
+
+function releaseSlot() {
+  inFlight -= 1;
+  const next = waiters.shift();
+  if (next) next();
 }
 
 export interface WeatherData {
@@ -44,14 +90,22 @@ export interface HourlyForecast {
 }
 
 async function callWeatherProxy(endpoint: string, params: Record<string, string | number>) {
-  const { data, error } = await supabase.functions.invoke("weather-proxy", {
-    body: { endpoint, params },
-  });
-  if (error) throw new Error(error.message || "Weather proxy error");
-  if (data?.activating) throw new WeatherActivatingError();
-  if (data?.rateLimited) throw new WeatherRateLimitedError();
-  if (data?.error) throw new Error(data.error);
-  return data;
+  await acquireSlot();
+  try {
+    const { data, error } = await supabase.functions.invoke("weather-proxy", {
+      body: { endpoint, params },
+    });
+    if (error) throw new Error(error.message || "Weather proxy error");
+    if (data?.activating) throw new WeatherActivatingError();
+    if (data?.rateLimited) {
+      emitRateLimitToast();
+      throw new WeatherRateLimitedError();
+    }
+    if (data?.error) throw new Error(data.error);
+    return data;
+  } finally {
+    releaseSlot();
+  }
 }
 
 export async function fetchCurrentWeather(lat: number, lng: number, lang: string = "en"): Promise<WeatherData> {

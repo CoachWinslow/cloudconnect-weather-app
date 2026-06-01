@@ -134,6 +134,45 @@ export type Database = {
         }
         Relationships: []
       }
+      request_logs: {
+        Row: {
+          cache_status: string | null
+          created_at: string
+          duration_ms: number | null
+          id: number
+          ip: string | null
+          method: string
+          path: string
+          rate_limited: boolean
+          status_code: number
+          user_agent: string | null
+        }
+        Insert: {
+          cache_status?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          id?: number
+          ip?: string | null
+          method: string
+          path: string
+          rate_limited?: boolean
+          status_code: number
+          user_agent?: string | null
+        }
+        Update: {
+          cache_status?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          id?: number
+          ip?: string | null
+          method?: string
+          path?: string
+          rate_limited?: boolean
+          status_code?: number
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -167,6 +206,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      prune_request_logs: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"

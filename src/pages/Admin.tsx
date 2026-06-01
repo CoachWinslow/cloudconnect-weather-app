@@ -7,13 +7,14 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { ArrowLeft, Shield } from "lucide-react";
 import AdminCities from "@/components/admin/AdminCities";
 import AdminRoles from "@/components/admin/AdminRoles";
+import AdminLogs from "@/components/admin/AdminLogs";
 
 export default function Admin() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
   const { language } = useSettings();
-  const [tab, setTab] = useState<"cities" | "roles">("cities");
+  const [tab, setTab] = useState<"cities" | "roles" | "logs">("cities");
 
   if (authLoading) {
     return (
@@ -65,8 +66,8 @@ export default function Admin() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          {(["cities", "roles"] as const).map((t) => (
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {(["cities", "roles", "logs"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -76,12 +77,12 @@ export default function Admin() {
                   : "bg-card border-border text-muted-foreground hover:border-primary/30"
               }`}
             >
-              {t === "cities" ? "Manage Cities" : "Manage Roles"}
+              {t === "cities" ? "Manage Cities" : t === "roles" ? "Manage Roles" : "Request Logs"}
             </button>
           ))}
         </div>
 
-        {tab === "cities" ? <AdminCities /> : <AdminRoles />}
+        {tab === "cities" ? <AdminCities /> : tab === "roles" ? <AdminRoles /> : <AdminLogs />}
       </div>
     </div>
   );
