@@ -27,6 +27,8 @@ const translations = {
     telemetryPartialBody: "{failed} of {total} stations didn't report in. Showing the rest below.",
     telemetryActivatingTitle: "Provisioning Weather Telemetry",
     telemetryActivatingBody: "A new API credential is propagating through the upstream network. Stations will come online automatically within minutes.",
+    telemetryRateLimitedTitle: "Telemetry Throttled",
+    telemetryRateLimitedBody: "Upstream weather feed temporarily capped. Stations will resume reporting automatically within a few minutes.",
     retry: "Retry",
     dismiss: "Dismiss",
 
@@ -94,6 +96,8 @@ const translations = {
     telemetryPartialBody: "{failed} de {total} estaciones no reportaron. Mostrando el resto abajo.",
     telemetryActivatingTitle: "Aprovisionando Telemetría Meteorológica",
     telemetryActivatingBody: "Una nueva credencial API se está propagando por la red. Las estaciones se conectarán automáticamente en unos minutos.",
+    telemetryRateLimitedTitle: "Telemetría Limitada",
+    telemetryRateLimitedBody: "El flujo meteorológico está temporalmente limitado. Las estaciones se reanudarán automáticamente en unos minutos.",
     retry: "Reintentar",
     dismiss: "Descartar",
 

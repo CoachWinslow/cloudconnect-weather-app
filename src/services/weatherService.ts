@@ -7,6 +7,13 @@ export class WeatherActivatingError extends Error {
   }
 }
 
+export class WeatherRateLimitedError extends Error {
+  constructor() {
+    super("Weather telemetry rate-limited");
+    this.name = "WeatherRateLimitedError";
+  }
+}
+
 export interface WeatherData {
   temp: number;
   feelsLike: number;
@@ -42,6 +49,7 @@ async function callWeatherProxy(endpoint: string, params: Record<string, string 
   });
   if (error) throw new Error(error.message || "Weather proxy error");
   if (data?.activating) throw new WeatherActivatingError();
+  if (data?.rateLimited) throw new WeatherRateLimitedError();
   if (data?.error) throw new Error(data.error);
   return data;
 }

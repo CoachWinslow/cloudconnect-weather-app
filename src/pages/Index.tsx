@@ -41,8 +41,10 @@ const Index = () => {
   const totalStations = weatherPayload?.total ?? 0;
   const onlineCount = Object.keys(weatherData).length;
   const isActivating = weatherPayload?.activating === true;
+  const isRateLimited = weatherPayload?.rateLimited === true;
+  const isSoftState = isActivating || isRateLimited;
   const showBanner =
-    !bannerDismissed && (isActivating || weatherError || (failedCount > 0 && totalStations > 0));
+    !bannerDismissed && (isSoftState || weatherError || (failedCount > 0 && totalStations > 0));
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
   const handleRetry = () => {
@@ -72,12 +74,12 @@ const Index = () => {
           <div
             role="alert"
             className={`mb-4 flex items-start gap-3 px-3 py-3 rounded-sm animate-fade-in ${
-              isActivating
+              isSoftState
                 ? "bg-primary/10 border border-primary/40"
                 : "bg-destructive/10 border border-destructive/40"
             }`}
           >
-            {isActivating ? (
+            {isSoftState ? (
               <Loader2 className="w-4 h-4 text-primary shrink-0 mt-0.5 animate-spin" />
             ) : (
               <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
@@ -85,16 +87,20 @@ const Index = () => {
             <div className="flex-1 min-w-0">
               <p
                 className={`font-display text-xs font-semibold uppercase tracking-wider ${
-                  isActivating ? "text-primary" : "text-destructive"
+                  isSoftState ? "text-primary" : "text-destructive"
                 }`}
               >
                 {isActivating
                   ? t(language, "telemetryActivatingTitle")
+                  : isRateLimited
+                  ? t(language, "telemetryRateLimitedTitle")
                   : t(language, "telemetryErrorTitle")}
               </p>
               <p className="text-xs text-foreground/80 mt-1">
                 {isActivating
                   ? t(language, "telemetryActivatingBody")
+                  : isRateLimited
+                  ? t(language, "telemetryRateLimitedBody")
                   : weatherError
                   ? t(language, "telemetryErrorBody")
                   : t(language, "telemetryPartialBody")
@@ -106,7 +112,7 @@ const Index = () => {
               onClick={handleRetry}
               disabled={weatherFetching}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
-                isActivating
+                isSoftState
                   ? "bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary"
                   : "bg-destructive/20 hover:bg-destructive/30 border border-destructive/40 text-destructive"
               }`}

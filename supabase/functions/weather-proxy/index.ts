@@ -136,7 +136,11 @@ serve(async (req) => {
         const resp = await fetch(u.toString());
         const body = await resp.text();
         if (!resp.ok) {
-          results[c.id] = { error: resp.status, activating: resp.status === 401 };
+          results[c.id] = {
+            error: resp.status,
+            activating: resp.status === 401,
+            rateLimited: resp.status === 429,
+          };
           return;
         }
         setCached(key, body);
@@ -154,13 +158,16 @@ serve(async (req) => {
       });
       await Promise.all(workers);
 
-      // Aggregate flag: every station 401 means the API key is still activating upstream.
-      const entries = Object.values(results);
+      // Aggregate flags: every-station 401 = key activating; every-station 429 = rate-limited.
+      const entries = Object.values(results) as Array<any>;
       const allActivating =
-        entries.length > 0 && entries.every((e: any) => e && e.activating === true);
-      return new Response(JSON.stringify({ results, activating: allActivating }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        entries.length > 0 && entries.every((e) => e && e.activating === true);
+      const allRateLimited =
+        entries.length > 0 && entries.every((e) => e && (e.rateLimited === true || e.error === 429));
+      return new Response(
+        JSON.stringify({ results, activating: allActivating, rateLimited: allRateLimited }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Serve from cache when available.
@@ -200,6 +207,14 @@ serve(async (req) => {
       if (response.status === 401) {
         return new Response(
           JSON.stringify({ error: "Weather telemetry activating", activating: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      // 429 = OpenWeatherMap free-tier rate cap (60/min). Surface as soft state so the client
+      // can back off and show a friendly message instead of cascading into more retries.
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Weather telemetry rate-limited", rateLimited: true }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
