@@ -5,7 +5,7 @@ import CityCard from "@/components/CityCard";
 import CitySearch from "@/components/CitySearch";
 import { useCities } from "@/hooks/useCities";
 import { useAllCitiesWeather } from "@/hooks/useWeatherData";
-import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X } from "lucide-react";
+import { Radar, Database, Globe, Activity, ChevronDown, AlertTriangle, RefreshCw, X, Loader2 } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/i18n/translations";
 import { groupCitiesByRegion, type RegionKey } from "@/utils/regionGroups";
@@ -40,8 +40,9 @@ const Index = () => {
   const failedCount = weatherPayload?.failedCount ?? 0;
   const totalStations = weatherPayload?.total ?? 0;
   const onlineCount = Object.keys(weatherData).length;
+  const isActivating = weatherPayload?.activating === true;
   const showBanner =
-    !bannerDismissed && (weatherError || (failedCount > 0 && totalStations > 0));
+    !bannerDismissed && (isActivating || weatherError || (failedCount > 0 && totalStations > 0));
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
   const handleRetry = () => {
@@ -70,15 +71,31 @@ const Index = () => {
         {showBanner && (
           <div
             role="alert"
-            className="mb-4 flex items-start gap-3 px-3 py-3 rounded-sm bg-destructive/10 border border-destructive/40 animate-fade-in"
+            className={`mb-4 flex items-start gap-3 px-3 py-3 rounded-sm animate-fade-in ${
+              isActivating
+                ? "bg-primary/10 border border-primary/40"
+                : "bg-destructive/10 border border-destructive/40"
+            }`}
           >
-            <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            {isActivating ? (
+              <Loader2 className="w-4 h-4 text-primary shrink-0 mt-0.5 animate-spin" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            )}
             <div className="flex-1 min-w-0">
-              <p className="font-display text-xs font-semibold text-destructive uppercase tracking-wider">
-                {t(language, "telemetryErrorTitle")}
+              <p
+                className={`font-display text-xs font-semibold uppercase tracking-wider ${
+                  isActivating ? "text-primary" : "text-destructive"
+                }`}
+              >
+                {isActivating
+                  ? t(language, "telemetryActivatingTitle")
+                  : t(language, "telemetryErrorTitle")}
               </p>
               <p className="text-xs text-foreground/80 mt-1">
-                {weatherError
+                {isActivating
+                  ? t(language, "telemetryActivatingBody")
+                  : weatherError
                   ? t(language, "telemetryErrorBody")
                   : t(language, "telemetryPartialBody")
                       .replace("{failed}", String(failedCount))
@@ -88,7 +105,11 @@ const Index = () => {
             <button
               onClick={handleRetry}
               disabled={weatherFetching}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-destructive/20 hover:bg-destructive/30 border border-destructive/40 text-destructive text-[10px] font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
+                isActivating
+                  ? "bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary"
+                  : "bg-destructive/20 hover:bg-destructive/30 border border-destructive/40 text-destructive"
+              }`}
               aria-label={t(language, "retry")}
             >
               <RefreshCw className={`w-3 h-3 ${weatherFetching ? "animate-spin" : ""}`} />

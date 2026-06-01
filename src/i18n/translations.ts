@@ -25,6 +25,8 @@ const translations = {
     telemetryErrorTitle: "Telemetry Link Disrupted",
     telemetryErrorBody: "We couldn't reach the weather network. Some stations may show no data.",
     telemetryPartialBody: "{failed} of {total} stations didn't report in. Showing the rest below.",
+    telemetryActivatingTitle: "Provisioning Weather Telemetry",
+    telemetryActivatingBody: "A new API credential is propagating through the upstream network. Stations will come online automatically within minutes.",
     retry: "Retry",
     dismiss: "Dismiss",
 
@@ -90,6 +92,8 @@ const translations = {
     telemetryErrorTitle: "Conexión de Telemetría Interrumpida",
     telemetryErrorBody: "No pudimos contactar la red meteorológica. Algunas estaciones pueden no mostrar datos.",
     telemetryPartialBody: "{failed} de {total} estaciones no reportaron. Mostrando el resto abajo.",
+    telemetryActivatingTitle: "Aprovisionando Telemetría Meteorológica",
+    telemetryActivatingBody: "Una nueva credencial API se está propagando por la red. Las estaciones se conectarán automáticamente en unos minutos.",
     retry: "Reintentar",
     dismiss: "Descartar",
 
