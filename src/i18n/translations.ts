@@ -96,6 +96,8 @@ const translations = {
     telemetryPartialBody: "{failed} de {total} estaciones no reportaron. Mostrando el resto abajo.",
     telemetryActivatingTitle: "Aprovisionando Telemetría Meteorológica",
     telemetryActivatingBody: "Una nueva credencial API se está propagando por la red. Las estaciones se conectarán automáticamente en unos minutos.",
+    telemetryRateLimitedTitle: "Telemetría Limitada",
+    telemetryRateLimitedBody: "El flujo meteorológico está temporalmente limitado. Las estaciones se reanudarán automáticamente en unos minutos.",
     retry: "Reintentar",
     dismiss: "Descartar",
 
