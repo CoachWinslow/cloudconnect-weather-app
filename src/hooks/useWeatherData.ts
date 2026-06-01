@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCities } from "@/hooks/useCities";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useEffect, useRef } from "react";
 import {
   fetchCurrentWeather,
   fetchForecast,
@@ -18,6 +20,18 @@ const ACTIVATING_REFETCH_MS = 60 * 1000;
 const RATE_LIMITED_REFETCH_MS = 5 * 60 * 1000;
 const NORMAL_REFETCH_MS = 15 * 60 * 1000;
 const DETAIL_REFETCH_MS = 10 * 60 * 1000;
+
+// Backoff helper: exponential with jitter, capped at 60s. Jitter prevents
+// every component from retrying in lockstep and re-creating a thundering herd.
+function backoffDelay(attempt: number, err: unknown): number {
+  if (err instanceof WeatherActivatingError) {
+    // Activation window — wait a fixed ~30s with some jitter.
+    return 30_000 + Math.floor(Math.random() * 10_000);
+  }
+  const base = Math.min(1000 * 2 ** attempt, 60_000);
+  const jitter = Math.floor(Math.random() * Math.min(base, 5_000));
+  return base + jitter;
+}
 
 export function useAllCitiesWeather(lang: string = "en") {
   const { data: cities } = useCities();
@@ -67,6 +81,20 @@ export function useAllCitiesWeather(lang: string = "en") {
     refetchOnWindowFocus: false,
     retry: 1,
   });
+
+  // 429 alert: toast once when transitioning into rate-limited state.
+  const wasRateLimitedRef = useRef(false);
+  useEffect(() => {
+    const rl = query.data?.rateLimited === true;
+    if (rl && !wasRateLimitedRef.current) {
+      toast.warning("Weather API rate limit hit", {
+        description: "Refresh slowed to every 5 minutes while quota recovers.",
+        duration: 8000,
+      });
+    }
+    wasRateLimitedRef.current = rl;
+  }, [query.data?.rateLimited]);
+
   return query;
 }
 
@@ -83,8 +111,7 @@ export function useCityWeather(lat: number, lng: number, lang: string = "en", en
       if (err instanceof WeatherActivatingError) return failureCount < 3;
       return failureCount < 2;
     },
-    retryDelay: (attempt, err) =>
-      err instanceof WeatherActivatingError ? 30_000 : Math.min(1000 * 2 ** attempt, 30_000),
+    retryDelay: backoffDelay,
   });
 }
 
@@ -101,8 +128,7 @@ export function useCityForecast(lat: number, lng: number, lang: string = "en", e
       if (err instanceof WeatherActivatingError) return failureCount < 3;
       return failureCount < 2;
     },
-    retryDelay: (attempt, err) =>
-      err instanceof WeatherActivatingError ? 30_000 : Math.min(1000 * 2 ** attempt, 30_000),
+    retryDelay: backoffDelay,
   });
 }
 
@@ -119,7 +145,6 @@ export function useHourlyForecast(lat: number, lng: number, lang: string = "en",
       if (err instanceof WeatherActivatingError) return failureCount < 3;
       return failureCount < 2;
     },
-    retryDelay: (attempt, err) =>
-      err instanceof WeatherActivatingError ? 30_000 : Math.min(1000 * 2 ** attempt, 30_000),
+    retryDelay: backoffDelay,
   });
 }
