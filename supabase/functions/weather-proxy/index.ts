@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 // Restrict CORS to known app origins to deter cross-site abuse of the OpenWeather quota.
 const ALLOWED_ORIGINS = new Set<string>([
@@ -8,6 +9,52 @@ const ALLOWED_ORIGINS = new Set<string>([
   "http://localhost:8080",
 ]);
 const ALLOWED_ORIGIN_SUFFIXES = [".lovable.app", ".lovableproject.com"];
+
+// Per-IP throttle. Best-effort, per-instance: blocks an IP that exceeds the
+// per-minute ceiling. Not a substitute for proper rate-limit infra, but adds a
+// guardrail against accidental loops or a single client hammering the function.
+const IP_LIMIT_PER_MIN = 60;
+const IP_WINDOW_MS = 60 * 1000;
+type IpBucket = { count: number; windowStart: number };
+const ipBuckets = new Map<string, IpBucket>();
+
+function checkIpRate(ip: string | null): boolean {
+  if (!ip) return true;
+  const now = Date.now();
+  const bucket = ipBuckets.get(ip);
+  if (!bucket || now - bucket.windowStart > IP_WINDOW_MS) {
+    ipBuckets.set(ip, { count: 1, windowStart: now });
+    return true;
+  }
+  bucket.count += 1;
+  return bucket.count <= IP_LIMIT_PER_MIN;
+}
+
+// Lightweight async logger. Best-effort insert into request_logs; failures are swallowed
+// so they never affect the user-facing response.
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const logClient =
+  SUPABASE_URL && SERVICE_ROLE_KEY
+    ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+    : null;
+
+function logRequest(entry: {
+  path: string;
+  method: string;
+  status_code: number;
+  user_agent: string | null;
+  ip: string | null;
+  cache_status: string | null;
+  duration_ms: number;
+  rate_limited: boolean;
+}) {
+  if (!logClient) return;
+  // Fire-and-forget; do not await.
+  logClient.from("request_logs").insert(entry).then(({ error }) => {
+    if (error) console.error("request_logs insert failed:", error.message);
+  });
+}
 
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
@@ -64,27 +111,68 @@ function setCached(key: string, body: string): void {
 }
 
 serve(async (req) => {
+  const startedAt = Date.now();
   const origin = req.headers.get("Origin");
   const corsHeaders = buildCorsHeaders(origin);
+  const ip =
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    null;
+  const userAgent = req.headers.get("user-agent");
+  const path = new URL(req.url).pathname;
+
+  // Helper to attach logging to a Response without changing its body.
+  const respond = (resp: Response, cacheStatus: string | null, rateLimited = false) => {
+    logRequest({
+      path,
+      method: req.method,
+      status_code: resp.status,
+      user_agent: userAgent,
+      ip,
+      cache_status: cacheStatus,
+      duration_ms: Date.now() - startedAt,
+      rate_limited: rateLimited || resp.status === 429,
+    });
+    return resp;
+  };
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   if (!isAllowedOrigin(origin)) {
-    return new Response(JSON.stringify({ error: "Forbidden origin" }), {
-      status: 403,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return respond(
+      new Response(JSON.stringify({ error: "Forbidden origin" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }),
+      null,
+    );
+  }
+
+  // Per-IP throttle (in-memory, per instance).
+  if (!checkIpRate(ip)) {
+    return respond(
+      new Response(
+        JSON.stringify({ error: "Per-IP rate limit exceeded", rateLimited: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      ),
+      null,
+      true,
+    );
   }
 
   try {
     const API_KEY = Deno.env.get("OPENWEATHER_API_KEY");
     if (!API_KEY) {
-      return new Response(JSON.stringify({ error: "OPENWEATHER_API_KEY not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return respond(
+        new Response(JSON.stringify({ error: "OPENWEATHER_API_KEY not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }),
+        null,
+      );
     }
 
     const { endpoint, params } = await req.json();
@@ -92,10 +180,13 @@ serve(async (req) => {
     // Validate endpoint to prevent abuse
     const allowedEndpoints = ["weather", "forecast", "geo/1.0/direct", "bulk"];
     if (!allowedEndpoints.includes(endpoint)) {
-      return new Response(JSON.stringify({ error: "Invalid endpoint" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return respond(
+        new Response(JSON.stringify({ error: "Invalid endpoint" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }),
+        null,
+      );
     }
 
     // Bulk endpoint: fetch current weather for many coords in one request,
@@ -107,10 +198,13 @@ serve(async (req) => {
       const lang = params?.lang ?? "en";
 
       if (coords.length === 0 || coords.length > 200) {
-        return new Response(JSON.stringify({ error: "Invalid coords" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return respond(
+          new Response(JSON.stringify({ error: "Invalid coords" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }),
+          null,
+        );
       }
 
       const results: Record<string, unknown> = {};
@@ -164,9 +258,13 @@ serve(async (req) => {
         entries.length > 0 && entries.every((e) => e && e.activating === true);
       const allRateLimited =
         entries.length > 0 && entries.every((e) => e && (e.rateLimited === true || e.error === 429));
-      return new Response(
-        JSON.stringify({ results, activating: allActivating, rateLimited: allRateLimited }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      return respond(
+        new Response(
+          JSON.stringify({ results, activating: allActivating, rateLimited: allRateLimited }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        ),
+        "BULK",
+        allRateLimited,
       );
     }
 
@@ -174,9 +272,12 @@ serve(async (req) => {
     const cacheKey = buildCacheKey(endpoint, params);
     const cachedBody = getCached(cacheKey);
     if (cachedBody !== null) {
-      return new Response(cachedBody, {
-        headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
-      });
+      return respond(
+        new Response(cachedBody, {
+          headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+        }),
+        "HIT",
+      );
     }
 
     // Build URL
@@ -205,35 +306,51 @@ serve(async (req) => {
       // "provisioning telemetry" state and retry on a shorter interval, instead of treating it
       // as a hard error.
       if (response.status === 401) {
-        return new Response(
-          JSON.stringify({ error: "Weather telemetry activating", activating: true }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        return respond(
+          new Response(
+            JSON.stringify({ error: "Weather telemetry activating", activating: true }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          ),
+          "MISS",
         );
       }
       // 429 = OpenWeatherMap free-tier rate cap (60/min). Surface as soft state so the client
       // can back off and show a friendly message instead of cascading into more retries.
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Weather telemetry rate-limited", rateLimited: true }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        return respond(
+          new Response(
+            JSON.stringify({ error: "Weather telemetry rate-limited", rateLimited: true }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          ),
+          "MISS",
+          true,
         );
       }
-      return new Response(JSON.stringify({ error: "Weather data unavailable" }), {
-        status: response.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return respond(
+        new Response(JSON.stringify({ error: "Weather data unavailable" }), {
+          status: response.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }),
+        "MISS",
+      );
     }
 
     setCached(cacheKey, responseBody);
 
-    return new Response(responseBody, {
-      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "MISS" },
-    });
+    return respond(
+      new Response(responseBody, {
+        headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "MISS" },
+      }),
+      "MISS",
+    );
   } catch (e) {
     console.error("weather-proxy error:", e);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    return respond(
+      new Response(
+        JSON.stringify({ error: "Internal server error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      ),
+      null,
     );
   }
 });
