@@ -29,6 +29,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 // Service role key is read from process.env (Node), not import.meta.env,
 // so it never gets bundled into the browser build.
+declare const process: { env?: Record<string, string | undefined> } | undefined;
 const SERVICE_ROLE_KEY =
   (typeof process !== "undefined" && process.env?.SUPABASE_SERVICE_ROLE_KEY) ||
   "";
