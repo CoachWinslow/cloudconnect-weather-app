@@ -40,7 +40,6 @@ const COUNTRY_TO_REGION: Record<string, RegionKey> = {
   'Singapore': 'asia-pacific',
   'Indonesia': 'asia-pacific',
   'Hong Kong': 'asia-pacific',
-  'Taiwan': 'asia-pacific',
   'Thailand': 'asia-pacific',
   'Philippines': 'asia-pacific',
   'Malaysia': 'asia-pacific',
