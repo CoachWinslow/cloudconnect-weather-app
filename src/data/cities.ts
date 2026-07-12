@@ -30,7 +30,7 @@ export const cities: City[] = [
       type: "story",
       description: "Home of DVSport Software — my first interaction with software as a football coach (2004). DVSport is a premier digital video acquisition, analysis, and playback platform used for instant replay and coaching analysis across NCAA football and basketball programs nationwide.",
       description_es: "Hogar de DVSport Software — mi primera interacción con software como entrenador de fútbol americano (2004). DVSport es una plataforma líder de adquisición, análisis y reproducción de video digital utilizada para repeticiones instantáneas y análisis de coaching en programas de fútbol americano y baloncesto de la NCAA.",
-      emoji: "🏈",
+      emoji: "/__l5e/assets-v1/fab8c5e3-3f85-49eb-915a-6228814204e0/steelers-logo.svg",
       url: "https://www.dvsport.com/",
     },
     funFact: "DVSport is a premier digital video acquisition, analysis, and playback platform used for instant replay and coaching analysis across NCAA football and basketball programs nationwide.",
