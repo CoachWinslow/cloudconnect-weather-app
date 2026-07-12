@@ -6,7 +6,7 @@ interface CityEmojiProps {
 }
 
 export function isImageEmoji(emoji: string): boolean {
-  return emoji.startsWith("/assets/") || emoji.startsWith("http");
+  return emoji.startsWith("/") || emoji.startsWith("http");
 }
 
 export default function CityEmoji({ emoji, name, className = "", size = 28 }: CityEmojiProps) {
