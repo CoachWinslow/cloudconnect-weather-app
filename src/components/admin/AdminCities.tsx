@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Save, X, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import CityEmoji from "@/components/CityEmoji";
 
 // Schema enforcing that every city has a non-empty country, valid coords,
 // and required content fields. Trim + length limits guard against bad input.
@@ -253,7 +254,7 @@ export default function AdminCities() {
             className="glow-border rounded-md bg-card p-3 flex items-center justify-between gap-3"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <span className="text-xl">{city.connection_emoji}</span>
+              <CityEmoji emoji={city.connection_emoji} name={city.name} size={24} className="shrink-0" />
               <div className="min-w-0">
                 <div className="font-display font-semibold text-sm text-foreground truncate">{city.name}</div>
                 <div className="font-mono text-[10px] text-muted-foreground">
