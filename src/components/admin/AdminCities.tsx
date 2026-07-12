@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Save, X, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import CityEmoji from "@/components/CityEmoji";
 
 // Schema enforcing that every city has a non-empty country, valid coords,
 // and required content fields. Trim + length limits guard against bad input.
