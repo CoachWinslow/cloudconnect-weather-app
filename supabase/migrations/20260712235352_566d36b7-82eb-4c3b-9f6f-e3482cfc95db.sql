@@ -1,0 +1,3 @@
+UPDATE public.cities SET connection_emoji = '/__l5e/assets-v1/48f4e318-7b5a-4c52-8281-116326a324ad/jaguars-logo.svg' WHERE id = 'jacksonville';
+UPDATE public.cities SET connection_emoji = '/__l5e/assets-v1/84c0a715-3647-414d-92dc-da91da5e48b2/buccaneers-logo.svg' WHERE id = 'tampa-bay';
+UPDATE public.cities SET connection_emoji = '/__l5e/assets-v1/5f64f7bb-cf73-42c9-b351-a9eb475049c0/eagles-logo.svg' WHERE id = 'philadelphia';
