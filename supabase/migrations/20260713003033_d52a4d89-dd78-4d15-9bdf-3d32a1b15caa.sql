@@ -1,0 +1,1 @@
+UPDATE public.cities SET connection_emoji='/__l5e/assets-v1/8a6af9b9-6c55-4d1f-882f-23253174a685/miami-hurricanes-logo.svg' WHERE id='miami';
