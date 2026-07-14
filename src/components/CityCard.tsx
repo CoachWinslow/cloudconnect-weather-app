@@ -28,7 +28,7 @@ export default function CityCard({ city, weather, index }: CityCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1.5 h-1.5 rounded-full bg-primary status-online shrink-0" />
-            <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">
+            <h3 className="font-display font-semibold text-xs sm:text-sm text-foreground group-hover:text-primary transition-colors truncate">
               {city.name}
             </h3>
           </div>

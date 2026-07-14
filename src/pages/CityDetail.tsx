@@ -94,7 +94,7 @@ export default function CityDetail() {
               <CityEmoji emoji={city.connection.emoji} name={city.name} className="text-3xl" size={36} />
               <div>
                 <div className="flex items-center gap-3">
-                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">
+                  <h2 className="font-display text-sm sm:text-base md:text-2xl lg:text-3xl font-bold text-foreground text-glow">
                     {city.name}
                   </h2>
                   <FavoriteButton cityId={city.id} cityName={city.name} lat={city.lat} lng={city.lng} />
