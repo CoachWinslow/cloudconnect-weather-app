@@ -66,7 +66,7 @@ export default function SearchCityDetail() {
               <span className="text-3xl">🔍</span>
               <div>
                 <div className="flex items-center gap-3">
-                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-glow">{name}</h2>
+                  <h2 className="font-display text-sm sm:text-base md:text-2xl lg:text-3xl font-bold text-foreground text-glow">{name}</h2>
                   <FavoriteButton cityName={name} lat={lat} lng={lng} />
                 </div>
                 <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
