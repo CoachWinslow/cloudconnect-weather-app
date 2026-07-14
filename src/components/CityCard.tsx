@@ -35,9 +35,7 @@ export default function CityCard({ city, weather, index }: CityCardProps) {
 
           <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2 ml-3.5">
             <MapPin className="w-3 h-3 shrink-0" />
-            <span className={`truncate ${city.country.length > 10 ? "text-[10px]" : ""}`}>
-              {city.country}
-            </span>
+            <span className="truncate">{city.country}</span>
           </div>
 
           <div className="ml-3.5 mb-2">
