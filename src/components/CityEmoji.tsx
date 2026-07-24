@@ -11,12 +11,14 @@ export function isImageEmoji(emoji: string): boolean {
 
 export default function CityEmoji({ emoji, name, className = "", size = 28 }: CityEmojiProps) {
   if (isImageEmoji(emoji)) {
+    // If className provides sizing (w-/h-), skip inline size so callers can be responsive.
+    const hasSizing = /\b[wh]-/.test(className);
     return (
       <img
         src={emoji}
         alt={name}
         className={className}
-        style={{ width: size, height: size, objectFit: "contain" }}
+        style={hasSizing ? { objectFit: "contain" } : { width: size, height: size, objectFit: "contain" }}
       />
     );
   }
