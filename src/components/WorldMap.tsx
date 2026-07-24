@@ -101,7 +101,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
         : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
       const emojiHtml = (city.connection.emoji.startsWith("/") || city.connection.emoji.startsWith("http"))
-        ? `<img src="${city.connection.emoji}" width="56" height="56" style="display:inline-block;vertical-align:middle;margin-right:8px;object-fit:contain;" />`
+        ? `<img src="${city.connection.emoji}" height="36" style="display:inline-block;vertical-align:middle;margin-right:8px;height:36px;width:auto;max-width:80px;object-fit:contain;" />`
         : city.connection.emoji;
 
       marker.bindPopup(
