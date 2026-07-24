@@ -91,7 +91,11 @@ export default function CityDetail() {
               <span className="font-mono text-[10px] text-primary uppercase tracking-wider">{t(language, "stationActive")}</span>
             </div>
             <div className="flex items-center gap-3 mb-1">
-              <CityEmoji emoji={city.connection.emoji} name={city.name} className="text-6xl" size={112} />
+              <CityEmoji
+                emoji={city.connection.emoji}
+                name={city.name}
+                className="text-5xl sm:text-6xl w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 shrink-0"
+              />
               <div>
                 <div className="flex items-center gap-3">
                   <h2 className="font-display text-sm sm:text-base md:text-2xl lg:text-3xl font-bold text-foreground text-glow">
