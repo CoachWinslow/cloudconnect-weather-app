@@ -62,7 +62,7 @@ export const cities: City[] = [
       type: "story",
       description: "Home of ICE Mortgage Technology — my first job in tech as a Data Migration Engineer & Senior Consultant. Pleasanton grew along historic railroad lines that once connected the West Coast.",
       description_es: "Hogar de ICE Mortgage Technology — mi primer trabajo en tecnología como Ingeniero de Migración de Datos y Consultor Senior. Pleasanton creció a lo largo de las líneas ferroviarias históricas que una vez conectaron la Costa Oeste.",
-      emoji: "🏠",
+      emoji: "/__l5e/assets-v1/7c98cee0-1c50-4961-8dc9-090ec08ef374/ice-logo.png",
       url: "https://mortgagetech.ice.com",
     },
     funFact: "Pleasanton grew along historic railroad lines that once connected the West Coast — and today it's a SaaS corridor connecting the mortgage industry to the cloud. Physical connectivity became digital connectivity.",
