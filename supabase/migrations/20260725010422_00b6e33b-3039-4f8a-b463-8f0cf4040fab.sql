@@ -1,0 +1,1 @@
+UPDATE public.cities SET connection_emoji = '/__l5e/assets-v1/aca3d943-a425-4179-977f-98d3bb8c2de3/sharon-tiger-logo.webp', updated_at = now() WHERE id = 'sharon';
