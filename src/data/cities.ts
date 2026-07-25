@@ -46,7 +46,7 @@ export const cities: City[] = [
       type: "story",
       description: "Home of LindenPointe Innovative Business Campus — my hometown. Before the cloud, there was the current. The power transformers built here by Westinghouse Electric (1922–1985) helped wire America's electrical grid.",
       description_es: "Hogar del campus empresarial innovador LindenPointe — mi ciudad natal. Antes de la nube, estaba la corriente. Los transformadores de energía construidos aquí por Westinghouse Electric (1922–1985) ayudaron a cablear la red eléctrica de Estados Unidos.",
-      emoji: "/__l5e/assets-v1/acc5349a-0d10-45c6-9aef-6b32754e9ac3/sharon-tiger-paw-v3.png",
+      emoji: "/__l5e/assets-v1/81840178-f839-4a2c-ab8f-d62c85bad536/sharon-tiger-paw-v4.png",
       url: "https://www.hermitage.net/452/LindenPointe-Innovative-Business-Campus",
     },
     funFact: "Before the cloud, there was the current. The power transformers built here by Westinghouse Electric (1922–1985) helped wire America's electrical grid — the same infrastructure that keeps data centers humming and cloud services online 24/7.",
