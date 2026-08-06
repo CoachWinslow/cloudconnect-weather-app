@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,18 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
   const mapInstanceRef = useRef<L.Map | null>(null);
   const navigate = useNavigate();
   const { formatTemp } = useSettings();
+
+  // Responsive popup icon size: mobile / tablet / desktop
+  const [iconSize, setIconSize] = useState(24);
+  useEffect(() => {
+    const compute = () => {
+      const w = window.innerWidth;
+      setIconSize(w < 640 ? 20 : w < 1024 ? 24 : 28);
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -101,7 +113,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
         : `<span style="color:#666;font-size:10px;font-family:JetBrains Mono,monospace;">ACQUIRING...</span>`;
 
       const emojiHtml = (city.connection.emoji.startsWith("/") || city.connection.emoji.startsWith("http"))
-        ? `<img src="${city.connection.emoji}" width="28" height="28" style="display:inline-block;vertical-align:middle;margin-right:6px;width:28px;height:28px;object-fit:contain;" />`
+        ? `<img src="${city.connection.emoji}" width="${iconSize}" height="${iconSize}" style="display:inline-block;vertical-align:middle;margin-right:6px;width:${iconSize}px;height:${iconSize}px;object-fit:contain;" />`
         : city.connection.emoji;
 
       marker.bindPopup(
@@ -116,7 +128,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
 
       marker.on("mouseover", () => marker.openPopup());
     });
-  }, [cities, weatherData, navigate, formatTemp]);
+  }, [cities, weatherData, navigate, formatTemp, iconSize]);
 
   return (
     <div
