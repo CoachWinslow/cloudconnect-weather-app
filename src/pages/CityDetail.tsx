@@ -94,7 +94,7 @@ export default function CityDetail() {
               <CityEmoji
                 emoji={city.connection.emoji}
                 name={city.name}
-                className="text-5xl sm:text-6xl w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 shrink-0"
+                className="text-3xl sm:text-4xl w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 shrink-0"
               />
               <div>
                 <div className="flex items-center gap-3">
