@@ -123,7 +123,12 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -14] }
+        {
+          closeButton: false,
+          offset: [0, -14],
+          // Keep the popup clear of the top-left zoom controls on narrow maps.
+          autoPanPaddingTopLeft: L.point(50, 70),
+        }
       );
 
       marker.on("mouseover", () => marker.openPopup());
