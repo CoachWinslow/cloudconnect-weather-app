@@ -40,7 +40,6 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       zoomControl: true,
       scrollWheelZoom: true,
     });
-    map.zoomControl.setPosition("bottomright");
 
     const darkLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
@@ -64,12 +63,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     darkLayer.addTo(map);
     mapInstanceRef.current = map;
 
-    // Leaflet must recalculate its bounds when the responsive container changes.
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
-    resizeObserver.observe(mapRef.current);
-
     return () => {
-      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -129,12 +123,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        {
-          closeButton: false,
-          offset: [0, -14],
-          // Keep the popup clear of the top-left zoom controls on narrow maps.
-          autoPanPaddingTopLeft: L.point(50, 70),
-        }
+        { closeButton: false, offset: [0, -14] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
