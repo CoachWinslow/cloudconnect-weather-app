@@ -37,15 +37,21 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       zoom: 3,
       minZoom: 2,
       maxZoom: 8,
-      zoomControl: true,
+      zoomControl: false,
       scrollWheelZoom: true,
     });
 
-    const darkLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19,
-    });
+    // Bottom-right keeps zoom buttons clear of popups (which open upward from markers)
+    L.control.zoom({ position: "bottomright" }).addTo(map);
+
+    // Keyless dark basemap (CARTO now requires an API key)
+    const darkLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "Tiles &copy; Esri",
+        maxZoom: 16,
+      }
+    );
 
     const osmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -123,7 +129,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -14] }
+        { closeButton: false, offset: [0, -14], autoPanPaddingTopLeft: [56, 16], autoPanPaddingBottomRight: [56, 90] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
