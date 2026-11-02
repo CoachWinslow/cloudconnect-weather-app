@@ -63,7 +63,12 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     darkLayer.addTo(map);
     mapInstanceRef.current = map;
 
+    // Leaflet must recalculate its bounds when the responsive container changes.
+    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+    resizeObserver.observe(mapRef.current);
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
