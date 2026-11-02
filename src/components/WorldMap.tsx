@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import "@maplibre/maplibre-gl-leaflet";
+
+// Vite can't locate maplibre's worker on its own; point it explicitly.
+(maplibregl as any).setWorkerUrl?.(maplibreWorkerUrl);
+(window as any).maplibregl = maplibregl;
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
 import type { City } from "@/data/cities";
@@ -44,29 +52,14 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
     // Top-right keeps zoom buttons clear of popups (which open upward from markers)
     L.control.zoom({ position: "topright" }).addTo(map);
 
-    // Keyless dark basemap (CARTO now requires an API key)
-    const darkLayer = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution: "Tiles &copy; Esri",
-        maxZoom: 16,
-      }
-    );
-
-    const osmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-    });
-
-    let switchedToOsm = false;
-    darkLayer.on("tileerror", () => {
-      if (switchedToOsm) return;
-      switchedToOsm = true;
-      map.removeLayer(darkLayer);
-      osmLayer.addTo(map);
-    });
-
-    darkLayer.addTo(map);
+    // Keyless OpenFreeMap dark vector style (CARTO now requires an API key)
+    (L as any)
+      .maplibreGL({
+        style: "https://tiles.openfreemap.org/styles/dark",
+        attribution:
+          '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+      })
+      .addTo(map);
     mapInstanceRef.current = map;
 
     return () => {
