@@ -41,8 +41,8 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
       scrollWheelZoom: true,
     });
 
-    // Bottom-right keeps zoom buttons clear of popups (which open upward from markers)
-    L.control.zoom({ position: "bottomright" }).addTo(map);
+    // Top-right keeps zoom buttons clear of popups (which open upward from markers)
+    L.control.zoom({ position: "topright" }).addTo(map);
 
     // Keyless dark basemap (CARTO now requires an API key)
     const darkLayer = L.tileLayer(
@@ -129,7 +129,7 @@ export default function WorldMap({ cities, weatherData }: WorldMapProps) {
           ${tempHtml}
           <div style="font-size:9px;color:hsl(170,100%,45%);margin-top:8px;cursor:pointer;font-weight:500;font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.1em;">Access Data →</div>
         </div>`,
-        { closeButton: false, offset: [0, -14], autoPanPaddingTopLeft: [56, 16], autoPanPaddingBottomRight: [56, 90] }
+        { closeButton: false, offset: [0, -14], autoPanPaddingTopLeft: [16, 90], autoPanPaddingBottomRight: [56, 16] }
       );
 
       marker.on("mouseover", () => marker.openPopup());
